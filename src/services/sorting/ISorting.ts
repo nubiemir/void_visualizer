@@ -1,4 +1,8 @@
 export default interface ISorting {
-  draw(): void;
+  draw(
+    containerWidth: number,
+    containerHeight: number,
+    container: SVGElement
+  ): void;
   animate(): void;
 }
