@@ -1,0 +1,12 @@
+.slider:before {
+  content: "";
+  background-color: #0d141c;
+  pointer-events: none;
+  position: absolute;
+  top: calc(-50% - 4px);
+  right: calc(0% - 8px);
+  padding: 0.5rem;
+  border-radius: 50%;
+  z-index: 100;
+  cursor: pointer;
+}
