@@ -8,12 +8,11 @@ interface ITimeLineProps {
 }
 
 const TimeLine = ({ data }: ITimeLineProps) => {
+  let sliderRef: HTMLDivElement;
   const [timestamp, setTimestamp] = createSignal(0);
 
   const nextDisabled = () => timestamp() >= 100;
   const previousDiabled = () => timestamp() <= 0;
-
-  let sliderRef: HTMLDivElement;
 
   const handleSliderClick = (event: MouseEvent) => {
     if (!sliderRef) return;

@@ -1,18 +1,23 @@
 import * as d3 from "d3";
 import BarsService from "./bars.service";
+import { TUniqueArr } from "../../types";
 
 type TResult = {
   data: {
     rank: number;
     value: number;
+    compare: boolean;
+    sorted: boolean;
+    id: number;
   }[];
-  lft: number;
-  rgt: number;
 };
 
 class BubbleService extends BarsService {
-  constructor(private arr: number[]) {
+  private data: TResult[];
+  constructor(private arr: TUniqueArr[]) {
     super();
+    this.data = this.sort();
+    console.log(this.data);
   }
 
   draw(
@@ -22,7 +27,7 @@ class BubbleService extends BarsService {
   ): void {
     const svg = d3.select(container);
     const bar = svg.append("g").attr("fill", "steelblue").selectAll("rect");
-    const data = this.sort();
+    const data = this.data.slice();
     const x = this.scaleX(containerWidth, data[0].data);
     const y = this.scaleY(containerHeight, data[0].data);
 
@@ -41,9 +46,57 @@ class BubbleService extends BarsService {
       );
   }
 
-  animate(): void {}
+  async animate(
+    containerWidth: number,
+    containerHeight: number,
+    container: SVGElement
+  ) {
+    const svg = d3.select(container);
+    const data = this.data.slice();
+    const x = this.scaleX(containerWidth, data[0].data);
+    const y = this.scaleY(containerHeight, data[0].data);
+    svg.selectChildren().remove();
+    let bar = svg.append("g").attr("fill", "steelblue").selectAll("rect");
+    //notes:
+    /**
+     * normal
+     * duration 100
+     * delay between animations 500
+     * waiting time 1000
+     */
+    for (let i = 0; i < data.length; i++) {
+      bar = bar
+        .data(data[i].data, (d: any) => d.id)
+        .join(
+          (enter) =>
+            enter
+              .append("rect")
+              .attr("x", (d) => x(d.rank) as number)
+              .attr("y", (d) => y(d.value) as number)
+              .attr("height", (d) => y(0) - y(d.value))
+              .attr("width", (_) => x.bandwidth()),
+          (update) =>
+            update.call((update) =>
+              update
+                .transition()
+                .duration(100)
+                .ease(d3.easePolyInOut)
+                .attr("fill", (d) =>
+                  d.compare ? "red" : d.sorted ? "green" : "steelblue"
+                )
+                .transition()
+                .delay(500)
+                .duration(100)
+                .ease(d3.easeLinear)
+                .attr("x", (d) => x(d.rank) as number)
+            ),
+          (exit) => exit
+        );
+      await this.timer(1000);
+    }
+  }
 
-  sort(): TResult[] {
+  private sort(): TResult[] {
     const arrCopy = this.arr.slice();
     const result: TResult[] = [];
 
@@ -51,54 +104,50 @@ class BubbleService extends BarsService {
       data: arrCopy.map((itm, idx) => {
         return {
           rank: idx,
-          value: itm,
+          value: itm.value,
+          compare: false,
+          sorted: false,
+          id: itm.id,
         };
       }),
-      lft: -1,
-      rgt: -1,
     };
 
     result.push(init);
     for (let i = 0; i < arrCopy.length; i++) {
-      for (let j = i; j < arrCopy.length - i; j++) {
-        const before = {
-          data: arrCopy.map((itm, idx) => {
-            return {
-              rank: idx,
-              value: itm,
-            };
-          }),
-          lft: j,
-          rgt: j + 1,
-        };
-
-        result.push(before);
-
-        if (arrCopy[j] > arrCopy[j + 1]) {
+      const prevData = result[result.length - 1].data;
+      for (let j = 0; j < arrCopy.length - i - 1; j++) {
+        if (arrCopy[j].value > arrCopy[j + 1].value) {
           this.swap(arrCopy, j, j + 1);
         }
-
         const after = {
           data: arrCopy.map((itm, idx) => {
             return {
               rank: idx,
-              value: itm,
+              value: itm.value,
+              id: itm.id,
+              sorted: prevData[idx].sorted,
+              compare:
+                ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
+                false,
             };
           }),
-          lft: j,
-          rgt: j + 1,
         };
 
         result.push(after);
       }
+      result[result.length - 1].data[arrCopy.length - i - 1].sorted = true;
     }
     return result;
   }
 
-  private swap(arr: number[], lft: number, rht: number) {
+  private swap(arr: TUniqueArr[], lft: number, rht: number) {
     const tmp = arr[lft];
     arr[lft] = arr[rht];
     arr[rht] = tmp;
+  }
+
+  private timer(ms: number): Promise<void> {
+    return new Promise((res) => setTimeout(res, ms));
   }
 }
 
