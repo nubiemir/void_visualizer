@@ -18,9 +18,15 @@ type TBar = d3.Selection<
 
 class BubbleService extends BarsService {
   private data: TResult[];
-  constructor(private arr: TUniqueArr[]) {
+  private timer: any;
+  private svg;
+  private bar: TBar;
+  constructor(private arr: TUniqueArr[], svg: SVGElement) {
     super();
     this.data = this.sort();
+    this.svg = d3.select(svg);
+    this.bar = this.svg.append("g").attr("fill", "steelblue").selectAll("rect");
+    console.log(this.svg);
   }
 
   get getData() {
@@ -33,13 +39,11 @@ class BubbleService extends BarsService {
     container: SVGElement,
     frameIdx: number = 0
   ): void {
-    const svg = d3.select(container);
-    const data = this.data.slice();
-    const x = this.scaleX(containerWidth, data[0].data);
-    const y = this.scaleY(containerHeight, data[0].data);
-    const bar = svg.append("g").attr("fill", "steelblue").selectAll("rect");
-    bar
-      .data(data[frameIdx].data, (d: any) => d.value)
+    const x = this.scaleX(containerWidth, this.getData[0].data);
+    const y = this.scaleY(containerHeight, this.getData[0].data);
+
+    this.bar
+      .data(this.getData[frameIdx].data, (d: any) => d.id)
       .join(
         (enter) =>
           enter
@@ -51,8 +55,18 @@ class BubbleService extends BarsService {
             .attr("fill", (d) =>
               d.compare ? "red" : d.sorted ? "green" : "steelblue"
             ),
-        (update) => update,
-        (exit) => exit
+        (update) =>
+          update.call((update) =>
+            update
+              .transition()
+              .duration(100)
+              .ease(d3.easePolyInOut)
+              .attr("fill", (d) =>
+                d.compare ? "red" : d.sorted ? "green" : "steelblue"
+              )
+              .attr("x", (d) => x(d.rank) as number)
+          ),
+        (exit) => exit.remove()
       );
   }
 
@@ -63,60 +77,31 @@ class BubbleService extends BarsService {
    * delay between animations 500
    * waiting time 1000
    */
-  async *animate(
+  async animate(
     containerWidth: number,
     containerHeight: number,
     container: SVGElement,
-    isPaused: Accessor<boolean>,
+    handleFrameChange: (frame: number) => void,
+    handleAnimationFinished: () => void,
     frameIdx: Accessor<number>
   ) {
-    const svg = d3.select(container);
-    const data = this.data.slice();
-    const x = this.scaleX(containerWidth, data[0].data);
-    const y = this.scaleY(containerHeight, data[0].data);
-    svg.selectChildren().remove();
-    let bar: TBar = svg.append("g").attr("fill", "steelblue").selectAll("rect");
+    let i = frameIdx();
 
-    let timer;
-
-    for (let i = frameIdx() || 0; i < data.length; i++) {
-      if (isPaused()) {
-        timer && clearTimeout(timer);
-        bar.interrupt();
-        svg.selectChildren().remove();
-        this.draw(containerWidth, containerHeight, container, i - 1);
-        return i - 1;
+    this.timer = setInterval(() => {
+      if (i >= this.getData.length) {
+        handleAnimationFinished();
+        clearInterval(this.timer);
+        return;
       }
-      bar = bar
-        .data(data[i].data, (d: any) => d.id)
-        .join(
-          (enter) =>
-            enter
-              .append("rect")
-              .attr("x", (d) => x(d.rank) as number)
-              .attr("y", (d) => y(d.value) as number)
-              .attr("height", (d) => y(0) - y(d.value))
-              .attr("fill", (d) =>
-                d.compare ? "red" : d.sorted ? "green" : "steelblue"
-              )
-              .attr("width", (_) => x.bandwidth()),
-          (update) =>
-            update.call((update) =>
-              update
-                .transition()
-                .duration(10)
-                .ease(d3.easePolyInOut)
-                .attr("fill", (d) =>
-                  d.compare ? "red" : d.sorted ? "green" : "steelblue"
-                )
-                .attr("x", (d) => x(d.rank) as number)
-            ),
-          (exit) => exit
-        );
-      timer = await this.timer(100);
-      yield i;
-    }
-    return data.length - 1;
+
+      this.draw(containerWidth, containerHeight, container, i);
+      i++;
+      handleFrameChange(i);
+    }, 500);
+  }
+
+  pauseAnimation() {
+    clearInterval(this.timer);
   }
 
   private sort(): TResult[] {
@@ -194,14 +179,6 @@ class BubbleService extends BarsService {
     const tmp = arr[lft];
     arr[lft] = arr[rht];
     arr[rht] = tmp;
-  }
-
-  private timer(ms: number): Promise<number> {
-    return new Promise((res) => {
-      const timer = setTimeout(() => {
-        res(timer);
-      }, ms);
-    });
   }
 }
 

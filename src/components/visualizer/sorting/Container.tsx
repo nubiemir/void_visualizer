@@ -33,8 +33,9 @@ const Container = () => {
 
   const derivative = () => (frameIdx() / data().length || 0) * 100;
 
-  let svg: SVGElement;
+  let svg!: SVGElement;
   let sliderRef!: HTMLDivElement;
+  let service: BubbleService;
 
   const uniqueArr: Accessor<TUniqueArr[]> = createMemo(() =>
     arr.map((itm, idx) => {
@@ -42,16 +43,15 @@ const Container = () => {
     })
   );
 
-  const service = new BubbleService(uniqueArr());
-
   createEffect(() => {
-    svg.replaceChildren();
     if (!isAnimating() && isPaused()) {
-      service.draw(containerWidth(), containerHeight(), svg, frameIdx());
+      svg.replaceChildren();
+      service?.draw(containerWidth(), containerHeight(), svg, frameIdx());
     }
   });
 
   onMount(() => {
+    service = new BubbleService(uniqueArr(), svg);
     setContainerWidth(svg.clientWidth);
     setContainerHeight(svg.clientHeight);
     setData(service.getData);
@@ -68,46 +68,51 @@ const Container = () => {
     setIsPaused(false);
     setIsDone(false);
     setIsAnimating(true);
-    for await (const val of service.animate(
+
+    service.animate(
       containerWidth(),
       containerHeight(),
       svg,
-      isPaused,
+      handleFrameChange,
+      handleAnimationFinished,
       frameIdx
-    )) {
-      setFrameIdx(val);
-    }
-    setIsPaused(true);
-    if (frameIdx() >= service.getData.length - 1) {
-      setIsDone(true);
-    }
+    );
+  };
+
+  const handleFrameChange = (frame: number) => {
+    setFrameIdx(frame);
+  };
+
+  const handleAnimationFinished = () => {
+    setIsDone(true);
+    setIsPaused(false);
+    setIsAnimating(false);
   };
 
   const handleSliderClick = (event: MouseEvent) => {
     event.stopPropagation();
     if (!sliderRef) return;
 
+    service.pauseAnimation();
     const pageX = event.pageX;
     const sliderLength = sliderRef.clientWidth;
     const sliderToFrameLenght = sliderLength / data().length;
     const leftPosition = sliderRef.getBoundingClientRect().left;
     let positionClicked = pageX - leftPosition;
 
-    if (positionClicked > sliderLength) {
-      positionClicked = sliderLength;
-    }
+    if (positionClicked > sliderLength) positionClicked = sliderLength;
 
-    if (positionClicked < 0) {
-      positionClicked = 0;
-    }
+    if (positionClicked < 0) positionClicked = 0;
 
-    const positionClickIdx = Math.round(positionClicked / sliderToFrameLenght);
+    const positionClickIdx = Math.ceil(positionClicked / sliderToFrameLenght);
     setFrameIdx(positionClickIdx);
+    if (isAnimating()) handleStartAnimation(event);
   };
 
   const handlePauseAnimation = () => {
+    service.pauseAnimation();
     setIsPaused(true);
-    setIsAnimating(true);
+    setIsAnimating(false);
   };
 
   const handleReplayAnimation = (event: MouseEvent) => {
