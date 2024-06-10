@@ -43,7 +43,7 @@ class BubbleService extends BarsService {
     frameIdx: number = 0
   ): void {
     const svg = d3.select(container);
-    const bar = svg.selectAll("rect");
+    const bar = svg.select("g").attr("fill", "steelblue").selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
 
