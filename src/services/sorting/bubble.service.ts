@@ -19,14 +19,9 @@ type TBar = d3.Selection<
 class BubbleService extends BarsService {
   private data: TResult[];
   private timer: any;
-  private svg;
-  private bar: TBar;
   constructor(private arr: TUniqueArr[], svg: SVGElement) {
     super();
     this.data = this.sort();
-    this.svg = d3.select(svg);
-    this.bar = this.svg.append("g").attr("fill", "steelblue").selectAll("rect");
-    console.log(this.svg);
   }
 
   get getData() {
@@ -39,10 +34,11 @@ class BubbleService extends BarsService {
     container: SVGElement,
     frameIdx: number = 0
   ): void {
+    const svg = d3.select(container);
+    const bar = svg.selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
-
-    this.bar
+    bar
       .data(this.getData[frameIdx].data, (d: any) => d.id)
       .join(
         (enter) =>
