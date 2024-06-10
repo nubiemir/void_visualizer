@@ -18,6 +18,8 @@ interface ITimeLineProps {
   pause: (event: MouseEvent) => void;
   derivative: () => number;
   onSliderClick: (event: MouseEvent) => void;
+  onnextclick: (event: MouseEvent) => void;
+  onpreviousclick: (event: MouseEvent) => void;
 }
 
 const TimeLine = ({
@@ -28,6 +30,8 @@ const TimeLine = ({
   pause,
   derivative,
   onSliderClick,
+  onnextclick,
+  onpreviousclick,
   ref,
 }: ITimeLineProps) => {
   const nextDisabled = () => derivative() >= 100;
@@ -42,34 +46,6 @@ const TimeLine = ({
     const slider = event.target;
     if (!slider) return;
     document.addEventListener("mousemove", handleMouseMove);
-  };
-
-  const handleClickNext = (_: MouseEvent) => {
-    // event.stopPropagation();
-    // const sliderLength = sliderRef.clientWidth;
-    // const sliderToFrameLenght = sliderLength / data().length;
-    // const frameToSliderPercentage = (sliderToFrameLenght / sliderLength) * 100;
-    // let nextPosition;
-    // if (timestamp() + frameToSliderPercentage >= 100) {
-    //   nextPosition = 100;
-    // } else {
-    //   nextPosition = timestamp() + frameToSliderPercentage;
-    // }
-    // setTimestamp(nextPosition);
-  };
-
-  const handleClickPrevious = (_: MouseEvent) => {
-    // event.stopPropagation();
-    // const sliderLength = sliderRef.clientWidth;
-    // const sliderToFrameLenght = sliderLength / data().length;
-    // const frameToSliderPercentage = (sliderToFrameLenght / sliderLength) * 100;
-    // let previousPosition;
-    // if (timestamp() - frameToSliderPercentage <= 0) {
-    //   previousPosition = 0;
-    // } else {
-    //   previousPosition = timestamp() - frameToSliderPercentage;
-    // }
-    // setTimestamp(previousPosition);
   };
 
   document.addEventListener("mouseup", (event: MouseEvent) => {
@@ -97,7 +73,7 @@ const TimeLine = ({
       <div class="w-[100%] flex gap-1 items-center">
         <Media
           image={BackwardIcon}
-          handleClick={handleClickPrevious}
+          handleClick={onpreviousclick}
           classList={{
             "opacity-15": previousDiabled(),
             "pointer-event-none": previousDiabled(),
@@ -137,7 +113,7 @@ const TimeLine = ({
         )}
         <Media
           image={ForwardIcon}
-          handleClick={handleClickNext}
+          handleClick={onnextclick}
           classList={{
             "opacity-15": nextDisabled(),
             "pointer-event-none": nextDisabled(),

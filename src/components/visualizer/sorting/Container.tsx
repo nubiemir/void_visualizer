@@ -1,13 +1,7 @@
-import {
-  Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onMount,
-} from "solid-js";
+import { Accessor, createMemo, createSignal, onMount } from "solid-js";
 import BubbleService from "../../../services/sorting/bubble.service";
-import TimeLine from "../../common/timeline/TimeLine";
 import { TResult, TUniqueArr } from "../../../types";
+import TimeLine from "../../common/timeline/TimeLine";
 
 const arr = [
   87, 352, 168, 427, 420, 419, 198, 155, 174, 138, 23, 102, 7, 247, 358, 394,
@@ -31,9 +25,10 @@ const Container = () => {
   const [isDone, setIsDone] = createSignal(false);
   const [isAnimating, setIsAnimating] = createSignal(false);
 
-  const derivative = () => (frameIdx() / data().length || 0) * 100;
+  const derivative = () => (frameIdx() / (data().length - 1) || 0) * 100;
 
   let svg!: SVGElement;
+  let g!: SVGGElement;
   let sliderRef!: HTMLDivElement;
 
   const uniqueArr: Accessor<TUniqueArr[]> = createMemo(() =>
@@ -43,11 +38,6 @@ const Container = () => {
   );
   const service = new BubbleService(uniqueArr());
 
-  createEffect(() => {
-    if (!isAnimating()) svg.replaceChildren();
-    service.draw(containerWidth(), containerHeight(), svg, frameIdx());
-  });
-
   onMount(() => {
     setContainerWidth(svg.clientWidth);
     setContainerHeight(svg.clientHeight);
@@ -55,10 +45,32 @@ const Container = () => {
     service.draw(containerWidth(), containerHeight(), svg);
   });
 
-  window.addEventListener("resize", () => {
+  window.addEventListener("resize", (event: any) => {
     setContainerWidth(svg.clientWidth);
     setContainerHeight(svg.clientHeight);
+    if (isAnimating() && !isPaused()) {
+      handlePauseAnimation();
+      g.replaceChildren();
+      drawBars();
+      handleStartAnimation(event);
+    } else {
+      g.replaceChildren();
+      drawBars();
+    }
   });
+
+  document.addEventListener("keypress", (event: any) => {
+    const keyCode = event.code;
+    if (keyCode.toLowerCase() === "space" && isPaused() && !isDone())
+      return handleStartAnimation(event);
+    if (keyCode.toLowerCase() === "space" && isDone())
+      return handleReplayAnimation(event);
+    handlePauseAnimation();
+  });
+
+  const drawBars = () => {
+    service.draw(containerWidth(), containerHeight(), svg, frameIdx());
+  };
 
   const handleStartAnimation = async (event: MouseEvent) => {
     event.stopPropagation();
@@ -76,14 +88,25 @@ const Container = () => {
     );
   };
 
-  const handleFrameChange = (frame: number) => {
-    setFrameIdx(frame);
+  const handlePauseAnimation = () => {
+    service.pauseAnimation();
+    setIsPaused(true);
+    setIsAnimating(true);
+  };
+
+  const handleReplayAnimation = (event: MouseEvent) => {
+    setFrameIdx(0);
+    handleStartAnimation(event);
   };
 
   const handleAnimationFinished = () => {
     setIsDone(true);
     setIsPaused(false);
     setIsAnimating(false);
+  };
+
+  const handleFrameChange = (frame: number) => {
+    setFrameIdx(frame);
   };
 
   const handleSliderClick = (event: MouseEvent) => {
@@ -102,30 +125,49 @@ const Container = () => {
     if (positionClicked < 0) positionClicked = 0;
 
     const positionClickIdx = Math.ceil(positionClicked / sliderToFrameLenght);
-    if (positionClickIdx >= data().length - 1) {
-      setIsDone(true);
-      setIsPaused(false);
-      setIsAnimating(false);
-    }
+    positionClickIdx >= data().length - 1
+      ? handleAnimationFinished()
+      : setIsDone(false);
+
     setFrameIdx(positionClickIdx);
-    if (isAnimating() && !isPaused()) handleStartAnimation(event);
+    drawBars();
+    isAnimating() && !isPaused() && handleStartAnimation(event);
   };
 
-  const handlePauseAnimation = () => {
-    service.pauseAnimation();
-    setIsPaused(true);
-    setIsAnimating(true);
+  const handleClickNext = (event: MouseEvent) => {
+    event.stopPropagation();
+
+    if (frameIdx() >= data().length - 1) return;
+    setFrameIdx((prev) => prev + 1);
+    if (!isPaused() && isAnimating()) {
+      handlePauseAnimation();
+      drawBars();
+      handleStartAnimation(event);
+    } else {
+      drawBars();
+    }
   };
 
-  const handleReplayAnimation = (event: MouseEvent) => {
-    setFrameIdx(0);
-    handleStartAnimation(event);
+  const handleClickPrevious = (event: MouseEvent) => {
+    event.stopPropagation();
+
+    if (frameIdx() <= 0) return;
+    setFrameIdx((prev) => prev - 1);
+    if (!isPaused() && isAnimating()) {
+      handlePauseAnimation();
+      drawBars();
+      handleStartAnimation(event);
+    } else {
+      drawBars();
+    }
   };
 
   return (
     <div class="w-[100%] p-4 border border-solid min-h-[400px] min-w-[450px] border-red-500 best">
       <div class="p-5 border relative h-[100%] max-h-[100%] border-red-500">
-        <svg ref={(ele) => (svg = ele)} class="w-[100%]  min-h-[400px]"></svg>
+        <svg ref={(ele) => (svg = ele)} class="w-[100%]  min-h-[400px]">
+          <g ref={(ele) => (g = ele)}></g>
+        </svg>
         <div class="w-[100%] absolute bottom-4 left-[50%] translate-x-[-50%] px-5">
           <div class="w-[100%]">
             <TimeLine
@@ -138,6 +180,8 @@ const Container = () => {
               onSliderClick={handleSliderClick}
               isDone={isDone}
               derivative={derivative}
+              onpreviousclick={handleClickPrevious}
+              onnextclick={handleClickNext}
             />
           </div>
         </div>
