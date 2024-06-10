@@ -35,23 +35,20 @@ const Container = () => {
 
   let svg!: SVGElement;
   let sliderRef!: HTMLDivElement;
-  let service: BubbleService;
 
   const uniqueArr: Accessor<TUniqueArr[]> = createMemo(() =>
     arr.map((itm, idx) => {
       return { value: itm, id: idx };
     })
   );
+  const service = new BubbleService(uniqueArr());
 
   createEffect(() => {
-    if (!isAnimating() && isPaused()) {
-      svg.replaceChildren();
-      service?.draw(containerWidth(), containerHeight(), svg, frameIdx());
-    }
+    if (!isAnimating()) svg.replaceChildren();
+    service.draw(containerWidth(), containerHeight(), svg, frameIdx());
   });
 
   onMount(() => {
-    service = new BubbleService(uniqueArr(), svg);
     setContainerWidth(svg.clientWidth);
     setContainerHeight(svg.clientHeight);
     setData(service.getData);
@@ -96,7 +93,7 @@ const Container = () => {
     service.pauseAnimation();
     const pageX = event.pageX;
     const sliderLength = sliderRef.clientWidth;
-    const sliderToFrameLenght = sliderLength / data().length;
+    const sliderToFrameLenght = sliderLength / (data().length - 1);
     const leftPosition = sliderRef.getBoundingClientRect().left;
     let positionClicked = pageX - leftPosition;
 
@@ -105,14 +102,19 @@ const Container = () => {
     if (positionClicked < 0) positionClicked = 0;
 
     const positionClickIdx = Math.ceil(positionClicked / sliderToFrameLenght);
+    if (positionClickIdx >= data().length - 1) {
+      setIsDone(true);
+      setIsPaused(false);
+      setIsAnimating(false);
+    }
     setFrameIdx(positionClickIdx);
-    if (isAnimating()) handleStartAnimation(event);
+    if (isAnimating() && !isPaused()) handleStartAnimation(event);
   };
 
   const handlePauseAnimation = () => {
     service.pauseAnimation();
     setIsPaused(true);
-    setIsAnimating(false);
+    setIsAnimating(true);
   };
 
   const handleReplayAnimation = (event: MouseEvent) => {

@@ -3,23 +3,31 @@ import BarsService from "./bars.service";
 import { TUniqueArr, TResult } from "../../types";
 import { Accessor } from "solid-js";
 
-type TBar = d3.Selection<
-  d3.BaseType | SVGRectElement,
-  {
-    rank: number;
-    value: number;
-    compare: boolean;
-    sorted: boolean;
-    id: number;
-  },
-  SVGGElement,
-  unknown
->;
+// type TBar = d3.Selection<
+//   d3.BaseType | SVGRectElement,
+//   {
+//     rank: number;
+//     value: number;
+//     compare: boolean;
+//     sorted: boolean;
+//     id: number;
+//   },
+//   SVGGElement,
+//   unknown
+// >;
+
+type TPrev = {
+  rank: number;
+  value: number;
+  compare: boolean;
+  sorted: boolean;
+  id: number;
+};
 
 class BubbleService extends BarsService {
   private data: TResult[];
   private timer: any;
-  constructor(private arr: TUniqueArr[], svg: SVGElement) {
+  constructor(private arr: TUniqueArr[]) {
     super();
     this.data = this.sort();
   }
@@ -38,6 +46,7 @@ class BubbleService extends BarsService {
     const bar = svg.selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
+
     bar
       .data(this.getData[frameIdx].data, (d: any) => d.id)
       .join(
@@ -55,7 +64,7 @@ class BubbleService extends BarsService {
           update.call((update) =>
             update
               .transition()
-              .duration(100)
+              .duration(200)
               .ease(d3.easePolyInOut)
               .attr("fill", (d) =>
                 d.compare ? "red" : d.sorted ? "green" : "steelblue"
@@ -82,9 +91,8 @@ class BubbleService extends BarsService {
     frameIdx: Accessor<number>
   ) {
     let i = frameIdx();
-
     this.timer = setInterval(() => {
-      if (i >= this.getData.length) {
+      if (i >= this.getData.length - 1) {
         handleAnimationFinished();
         clearInterval(this.timer);
         return;
@@ -120,36 +128,12 @@ class BubbleService extends BarsService {
     for (let i = 0; i < arrCopy.length; i++) {
       const prevData = result[result.length - 1].data;
       for (let j = 0; j < arrCopy.length - i - 1; j++) {
-        const before = {
-          data: arrCopy.map((itm, idx) => {
-            return {
-              rank: idx,
-              value: itm.value,
-              id: itm.id,
-              sorted: prevData[idx].sorted,
-              compare:
-                ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
-                false,
-            };
-          }),
-        };
+        const before = this.populate(arrCopy, prevData, j, i);
         result.push(before);
         if (arrCopy[j].value > arrCopy[j + 1].value) {
           this.swap(arrCopy, j, j + 1);
         }
-        const after = {
-          data: arrCopy.map((itm, idx) => {
-            return {
-              rank: idx,
-              value: itm.value,
-              id: itm.id,
-              sorted: prevData[idx].sorted,
-              compare:
-                ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
-                false,
-            };
-          }),
-        };
+        const after = this.populate(arrCopy, prevData, j, i);
         result.push(after);
       }
       result[result.length - 1].data[arrCopy.length - i - 1].sorted = true;
@@ -175,6 +159,29 @@ class BubbleService extends BarsService {
     const tmp = arr[lft];
     arr[lft] = arr[rht];
     arr[rht] = tmp;
+  }
+
+  private populate(
+    arrCopy: TUniqueArr[],
+    prevData: TPrev[],
+    j: number,
+    i: number
+  ) {
+    const tempResult = {
+      data: arrCopy.map((itm, idx) => {
+        return {
+          rank: idx,
+          value: itm.value,
+          id: itm.id,
+          sorted: prevData[idx].sorted,
+          compare:
+            ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
+            false,
+        };
+      }),
+    };
+
+    return tempResult;
   }
 }
 
