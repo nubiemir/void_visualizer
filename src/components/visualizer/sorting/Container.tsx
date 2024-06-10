@@ -48,9 +48,24 @@ const Container = () => {
   window.addEventListener("resize", (event: any) => {
     setContainerWidth(svg.clientWidth);
     setContainerHeight(svg.clientHeight);
-    if (isAnimating()) handlePauseAnimation();
-    g.replaceChildren();
-    drawBars();
+    if (isAnimating() && !isPaused()) {
+      handlePauseAnimation();
+      g.replaceChildren();
+      drawBars();
+      handleStartAnimation(event);
+    } else {
+      g.replaceChildren();
+      drawBars();
+    }
+  });
+
+  document.addEventListener("keypress", (event: any) => {
+    const keyCode = event.code;
+    if (keyCode.toLowerCase() === "space" && isPaused() && !isDone())
+      return handleStartAnimation(event);
+    if (keyCode.toLowerCase() === "space" && isDone())
+      return handleReplayAnimation(event);
+    handlePauseAnimation();
   });
 
   const drawBars = () => {
@@ -121,20 +136,30 @@ const Container = () => {
 
   const handleClickNext = (event: MouseEvent) => {
     event.stopPropagation();
-    !isPaused() && handlePauseAnimation();
+
     if (frameIdx() >= data().length - 1) return;
     setFrameIdx((prev) => prev + 1);
-    drawBars();
-    isAnimating() && !isPaused() && handleStartAnimation(event);
+    if (!isPaused() && isAnimating()) {
+      handlePauseAnimation();
+      drawBars();
+      handleStartAnimation(event);
+    } else {
+      drawBars();
+    }
   };
 
   const handleClickPrevious = (event: MouseEvent) => {
     event.stopPropagation();
-    isAnimating() && !isPaused() && handlePauseAnimation();
+
     if (frameIdx() <= 0) return;
     setFrameIdx((prev) => prev - 1);
-    drawBars();
-    isAnimating() && !isPaused() && handleStartAnimation(event);
+    if (!isPaused() && isAnimating()) {
+      handlePauseAnimation();
+      drawBars();
+      handleStartAnimation(event);
+    } else {
+      drawBars();
+    }
   };
 
   return (
