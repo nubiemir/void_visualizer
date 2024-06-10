@@ -1,126 +1,151 @@
-import { createSignal } from "solid-js";
+import { Accessor, Ref } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
 import ForwardIcon from "../../../assets/forward-step-solid.svg";
+import PauseIcon from "../../../assets/pause-solid.svg";
+import PlayIcon from "../../../assets/play-solid.svg";
+import ReplyIcon from "../../../assets/reply-solid.svg";
+import { TResult } from "../../../types";
+import Media from "./Media";
 import "./timeline.css";
 
 interface ITimeLineProps {
-  data: number[][];
+  ref: Ref<HTMLDivElement>;
+  data: Accessor<TResult[]>;
+  isPaused: Accessor<boolean>;
+  isDone: Accessor<boolean>;
+  play: (event: MouseEvent) => Promise<void>;
+  replay: (event: MouseEvent) => void;
+  pause: (event: MouseEvent) => void;
+  derivative: () => number;
+  onSliderClick: (event: MouseEvent) => void;
 }
 
-const TimeLine = ({ data }: ITimeLineProps) => {
-  let sliderRef: HTMLDivElement;
-  const [timestamp, setTimestamp] = createSignal(0);
-
-  const nextDisabled = () => timestamp() >= 100;
-  const previousDiabled = () => timestamp() <= 0;
-
-  const handleSliderClick = (event: MouseEvent) => {
-    if (!sliderRef) return;
-
-    const pageX = event.pageX;
-    const sliderLength = sliderRef.clientWidth;
-    const sliderToFrameLenght = sliderLength / data.length;
-    const leftPosition = sliderRef.getBoundingClientRect().left;
-    let positionClicked = pageX - leftPosition;
-
-    if (positionClicked > sliderLength) {
-      positionClicked = sliderLength;
-    }
-
-    if (positionClicked < 0) {
-      positionClicked = 0;
-    }
-
-    const positionClickIdx = Math.round(positionClicked / sliderToFrameLenght);
-    const positionClickedPercentage =
-      ((positionClickIdx * sliderToFrameLenght) / sliderLength) * 100;
-
-    setTimestamp(positionClickedPercentage);
-  };
+const TimeLine = ({
+  isPaused,
+  isDone,
+  play,
+  replay,
+  pause,
+  derivative,
+  onSliderClick,
+  ref,
+}: ITimeLineProps) => {
+  const nextDisabled = () => derivative() >= 100;
+  const previousDiabled = () => derivative() <= 0;
 
   const handleMouseMove = (event: MouseEvent) => {
-    handleSliderClick(event);
+    event.stopPropagation();
+    onSliderClick(event);
   };
   const handleMouseSlide = (event: MouseEvent) => {
+    event.stopPropagation();
     const slider = event.target;
     if (!slider) return;
     document.addEventListener("mousemove", handleMouseMove);
   };
 
-  const handleClickNext = () => {
-    const sliderLength = sliderRef.clientWidth;
-    const sliderToFrameLenght = sliderLength / data.length;
-    const frameToSliderPercentage = (sliderToFrameLenght / sliderLength) * 100;
-    let nextPosition;
-
-    if (timestamp() + frameToSliderPercentage >= 100) {
-      nextPosition = 100;
-    } else {
-      nextPosition = timestamp() + frameToSliderPercentage;
-    }
-
-    setTimestamp(nextPosition);
+  const handleClickNext = (_: MouseEvent) => {
+    // event.stopPropagation();
+    // const sliderLength = sliderRef.clientWidth;
+    // const sliderToFrameLenght = sliderLength / data().length;
+    // const frameToSliderPercentage = (sliderToFrameLenght / sliderLength) * 100;
+    // let nextPosition;
+    // if (timestamp() + frameToSliderPercentage >= 100) {
+    //   nextPosition = 100;
+    // } else {
+    //   nextPosition = timestamp() + frameToSliderPercentage;
+    // }
+    // setTimestamp(nextPosition);
   };
 
-  const handleClickPrevious = () => {
-    const sliderLength = sliderRef.clientWidth;
-    const sliderToFrameLenght = sliderLength / data.length;
-    const frameToSliderPercentage = (sliderToFrameLenght / sliderLength) * 100;
-    let previousPosition;
-
-    if (timestamp() - frameToSliderPercentage <= 0) {
-      previousPosition = 0;
-    } else {
-      previousPosition = timestamp() - frameToSliderPercentage;
-    }
-
-    setTimestamp(previousPosition);
+  const handleClickPrevious = (_: MouseEvent) => {
+    // event.stopPropagation();
+    // const sliderLength = sliderRef.clientWidth;
+    // const sliderToFrameLenght = sliderLength / data().length;
+    // const frameToSliderPercentage = (sliderToFrameLenght / sliderLength) * 100;
+    // let previousPosition;
+    // if (timestamp() - frameToSliderPercentage <= 0) {
+    //   previousPosition = 0;
+    // } else {
+    //   previousPosition = timestamp() - frameToSliderPercentage;
+    // }
+    // setTimestamp(previousPosition);
   };
 
-  document.addEventListener("mouseup", () => {
-    sliderRef.removeEventListener("mousedown", handleMouseSlide);
+  document.addEventListener("mouseup", (event: MouseEvent) => {
+    event.stopPropagation();
+    // sliderRef.removeEventListener("mousedown", handleMouseSlide);
     document.removeEventListener("mousemove", handleMouseMove);
   });
 
   return (
-    <div class="flex gap-4 items-center">
-      <img
-        src={BackwardIcon}
-        width={10}
-        height={10}
-        onclick={handleClickPrevious}
-        class="cursor-pointer"
-        classList={{
-          "opacity-15": previousDiabled(),
-          "pointer-event-none": previousDiabled(),
-          "cursor-not-allowed": previousDiabled(),
-        }}
-      />
+    <div class="flex flex-col gap-4 items-center">
       <div
-        ref={(ele) => (sliderRef = ele)}
-        onclick={handleSliderClick}
+        ref={ref}
+        onclick={onSliderClick}
         onmousedown={handleMouseSlide}
         class="w-[100%] py-[2px] bg-slider-container rounded-md relative cursor-pointer"
       >
         <div
-          style={{ "--custom-width": `${timestamp()}%` }}
+          style={{ "--custom-width": `calc(${derivative()}%)` }}
           class={
-            "w-[var(--custom-width)] bg-bold  py-[2px] rounded-md absolute top-0 left-0 slider pointer-events-none"
+            "w-[var(--custom-width)] bg-bold  py-[2px] rounded-l-md  absolute top-0 left-0 slider pointer-events-none"
           }
         ></div>
       </div>
-      <img
-        src={ForwardIcon}
-        width={10}
-        height={10}
-        onclick={handleClickNext}
-        class="cursor-pointer"
-        classList={{
-          "opacity-15": nextDisabled(),
-          "pointer-event-none": nextDisabled(),
-          "cursor-not-allowed": nextDisabled(),
-        }}
-      />
+
+      <div class="w-[100%] flex gap-1 items-center">
+        <Media
+          image={BackwardIcon}
+          handleClick={handleClickPrevious}
+          classList={{
+            "opacity-15": previousDiabled(),
+            "pointer-event-none": previousDiabled(),
+            "cursor-pointer": !previousDiabled(),
+            "cursor-not-allowed": previousDiabled(),
+          }}
+        />
+
+        {!isPaused() && !isDone() && (
+          <Media
+            image={PauseIcon}
+            handleClick={pause}
+            classList={{
+              "cursor-pointer": !isPaused() && !isDone(),
+            }}
+          />
+        )}
+        {isPaused() && !isDone() && (
+          <Media
+            image={PlayIcon}
+            handleClick={play}
+            classList={{
+              "cursor-pointer": isPaused() && !isDone(),
+            }}
+          />
+        )}
+        {isDone() && (
+          <Media
+            image={ReplyIcon}
+            height={26}
+            width={26}
+            handleClick={replay}
+            classList={{
+              "cursor-pointer": isDone(),
+            }}
+          />
+        )}
+        <Media
+          image={ForwardIcon}
+          handleClick={handleClickNext}
+          classList={{
+            "opacity-15": nextDisabled(),
+            "pointer-event-none": nextDisabled(),
+            "cursor-pointer": !nextDisabled(),
+            "cursor-not-allowed": nextDisabled(),
+          }}
+        />
+      </div>
     </div>
   );
 };

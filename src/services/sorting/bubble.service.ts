@@ -1,38 +1,54 @@
 import * as d3 from "d3";
 import BarsService from "./bars.service";
-import { TUniqueArr } from "../../types";
+import { TUniqueArr, TResult } from "../../types";
+import { Accessor } from "solid-js";
 
-type TResult = {
-  data: {
-    rank: number;
-    value: number;
-    compare: boolean;
-    sorted: boolean;
-    id: number;
-  }[];
+// type TBar = d3.Selection<
+//   d3.BaseType | SVGRectElement,
+//   {
+//     rank: number;
+//     value: number;
+//     compare: boolean;
+//     sorted: boolean;
+//     id: number;
+//   },
+//   SVGGElement,
+//   unknown
+// >;
+
+type TPrev = {
+  rank: number;
+  value: number;
+  compare: boolean;
+  sorted: boolean;
+  id: number;
 };
 
 class BubbleService extends BarsService {
   private data: TResult[];
+  private timer: any;
   constructor(private arr: TUniqueArr[]) {
     super();
     this.data = this.sort();
-    console.log(this.data);
+  }
+
+  get getData() {
+    return this.data;
   }
 
   draw(
     containerWidth: number,
     containerHeight: number,
-    container: SVGElement
+    container: SVGElement,
+    frameIdx: number = 0
   ): void {
     const svg = d3.select(container);
-    const bar = svg.append("g").attr("fill", "steelblue").selectAll("rect");
-    const data = this.data.slice();
-    const x = this.scaleX(containerWidth, data[0].data);
-    const y = this.scaleY(containerHeight, data[0].data);
+    const bar = svg.selectAll("rect");
+    const x = this.scaleX(containerWidth, this.getData[0].data);
+    const y = this.scaleY(containerHeight, this.getData[0].data);
 
     bar
-      .data(data[0].data, (d: any) => d.value)
+      .data(this.getData[frameIdx].data, (d: any) => d.id)
       .join(
         (enter) =>
           enter
@@ -40,60 +56,56 @@ class BubbleService extends BarsService {
             .attr("x", (d) => x(d.rank) as number)
             .attr("y", (d) => y(d.value) as number)
             .attr("height", (d) => y(0) - y(d.value))
-            .attr("width", (_) => x.bandwidth()),
-        (update) => update,
-        (exit) => exit
+            .attr("width", (_) => x.bandwidth())
+            .attr("fill", (d) =>
+              d.compare ? "red" : d.sorted ? "green" : "steelblue"
+            ),
+        (update) =>
+          update.call((update) =>
+            update
+              .transition()
+              .duration(200)
+              .ease(d3.easePolyInOut)
+              .attr("fill", (d) =>
+                d.compare ? "red" : d.sorted ? "green" : "steelblue"
+              )
+              .attr("x", (d) => x(d.rank) as number)
+          ),
+        (exit) => exit.remove()
       );
   }
 
+  //notes:
+  /**
+   * normal
+   * duration 100
+   * delay between animations 500
+   * waiting time 1000
+   */
   async animate(
     containerWidth: number,
     containerHeight: number,
-    container: SVGElement
+    container: SVGElement,
+    handleFrameChange: (frame: number) => void,
+    handleAnimationFinished: () => void,
+    frameIdx: Accessor<number>
   ) {
-    const svg = d3.select(container);
-    const data = this.data.slice();
-    const x = this.scaleX(containerWidth, data[0].data);
-    const y = this.scaleY(containerHeight, data[0].data);
-    svg.selectChildren().remove();
-    let bar = svg.append("g").attr("fill", "steelblue").selectAll("rect");
-    //notes:
-    /**
-     * normal
-     * duration 100
-     * delay between animations 500
-     * waiting time 1000
-     */
-    for (let i = 0; i < data.length; i++) {
-      bar = bar
-        .data(data[i].data, (d: any) => d.id)
-        .join(
-          (enter) =>
-            enter
-              .append("rect")
-              .attr("x", (d) => x(d.rank) as number)
-              .attr("y", (d) => y(d.value) as number)
-              .attr("height", (d) => y(0) - y(d.value))
-              .attr("width", (_) => x.bandwidth()),
-          (update) =>
-            update.call((update) =>
-              update
-                .transition()
-                .duration(100)
-                .ease(d3.easePolyInOut)
-                .attr("fill", (d) =>
-                  d.compare ? "red" : d.sorted ? "green" : "steelblue"
-                )
-                .transition()
-                .delay(500)
-                .duration(100)
-                .ease(d3.easeLinear)
-                .attr("x", (d) => x(d.rank) as number)
-            ),
-          (exit) => exit
-        );
-      await this.timer(1000);
-    }
+    let i = frameIdx();
+    this.timer = setInterval(() => {
+      if (i >= this.getData.length - 1) {
+        handleAnimationFinished();
+        clearInterval(this.timer);
+        return;
+      }
+
+      this.draw(containerWidth, containerHeight, container, i);
+      i++;
+      handleFrameChange(i);
+    }, 500);
+  }
+
+  pauseAnimation() {
+    clearInterval(this.timer);
   }
 
   private sort(): TResult[] {
@@ -116,22 +128,12 @@ class BubbleService extends BarsService {
     for (let i = 0; i < arrCopy.length; i++) {
       const prevData = result[result.length - 1].data;
       for (let j = 0; j < arrCopy.length - i - 1; j++) {
+        const before = this.populate(arrCopy, prevData, j, i);
+        result.push(before);
         if (arrCopy[j].value > arrCopy[j + 1].value) {
           this.swap(arrCopy, j, j + 1);
         }
-        const after = {
-          data: arrCopy.map((itm, idx) => {
-            return {
-              rank: idx,
-              value: itm.value,
-              id: itm.id,
-              sorted: prevData[idx].sorted,
-              compare:
-                ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
-                false,
-            };
-          }),
-        };
+        const after = this.populate(arrCopy, prevData, j, i);
         result.push(after);
       }
       result[result.length - 1].data[arrCopy.length - i - 1].sorted = true;
@@ -159,8 +161,27 @@ class BubbleService extends BarsService {
     arr[rht] = tmp;
   }
 
-  private timer(ms: number): Promise<void> {
-    return new Promise((res) => setTimeout(res, ms));
+  private populate(
+    arrCopy: TUniqueArr[],
+    prevData: TPrev[],
+    j: number,
+    i: number
+  ) {
+    const tempResult = {
+      data: arrCopy.map((itm, idx) => {
+        return {
+          rank: idx,
+          value: itm.value,
+          id: itm.id,
+          sorted: prevData[idx].sorted,
+          compare:
+            ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
+            false,
+        };
+      }),
+    };
+
+    return tempResult;
   }
 }
 
