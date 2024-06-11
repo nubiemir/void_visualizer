@@ -92,7 +92,7 @@ class BubbleService extends BarsService {
   ) {
     let i = frameIdx();
     this.timer = setInterval(() => {
-      if (i >= this.getData.length - 1) {
+      if (i > this.getData.length - 1) {
         handleAnimationFinished();
         clearInterval(this.timer);
         return;
@@ -132,9 +132,9 @@ class BubbleService extends BarsService {
         result.push(before);
         if (arrCopy[j].value > arrCopy[j + 1].value) {
           this.swap(arrCopy, j, j + 1);
+          const after = this.populate(arrCopy, prevData, j, i);
+          result.push(after);
         }
-        const after = this.populate(arrCopy, prevData, j, i);
-        result.push(after);
       }
       result[result.length - 1].data[arrCopy.length - i - 1].sorted = true;
     }

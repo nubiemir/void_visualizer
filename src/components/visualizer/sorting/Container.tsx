@@ -42,7 +42,7 @@ const Container = () => {
     setContainerWidth(svg.clientWidth);
     setContainerHeight(svg.clientHeight);
     setData(service.getData);
-    service.draw(containerWidth(), containerHeight(), svg);
+    service.draw(containerWidth(), containerHeight(), svg, 0);
   });
 
   window.addEventListener("resize", (event: any) => {
@@ -91,7 +91,7 @@ const Container = () => {
   const handlePauseAnimation = () => {
     service.pauseAnimation();
     setIsPaused(true);
-    setIsAnimating(true);
+    setIsAnimating(false);
   };
 
   const handleReplayAnimation = (event: MouseEvent) => {
@@ -125,9 +125,20 @@ const Container = () => {
     if (positionClicked < 0) positionClicked = 0;
 
     const positionClickIdx = Math.ceil(positionClicked / sliderToFrameLenght);
-    positionClickIdx >= data().length - 1
-      ? handleAnimationFinished()
-      : setIsDone(false);
+    if (positionClickIdx >= data().length - 1) {
+      handleAnimationFinished();
+      setFrameIdx(positionClickIdx);
+      drawBars();
+      return;
+    }
+
+    if (positionClickIdx < data().length - 1 && isDone()) {
+      handlePauseAnimation();
+      setFrameIdx(positionClickIdx);
+      setIsDone(false);
+      drawBars();
+      return;
+    }
 
     setFrameIdx(positionClickIdx);
     drawBars();
@@ -137,7 +148,13 @@ const Container = () => {
   const handleClickNext = (event: MouseEvent) => {
     event.stopPropagation();
 
-    if (frameIdx() >= data().length - 1) return;
+    if (frameIdx() + 1 >= data().length - 1) {
+      handleAnimationFinished();
+      setFrameIdx(data().length - 1);
+      drawBars();
+      return;
+    }
+
     setFrameIdx((prev) => prev + 1);
     if (!isPaused() && isAnimating()) {
       handlePauseAnimation();
@@ -151,7 +168,12 @@ const Container = () => {
   const handleClickPrevious = (event: MouseEvent) => {
     event.stopPropagation();
 
-    if (frameIdx() <= 0) return;
+    if (frameIdx() - 1 <= 0) {
+      setFrameIdx(0);
+      drawBars();
+      return;
+    }
+
     setFrameIdx((prev) => prev - 1);
     if (!isPaused() && isAnimating()) {
       handlePauseAnimation();
@@ -174,6 +196,7 @@ const Container = () => {
               ref={sliderRef}
               data={data}
               isPaused={isPaused}
+              isAnimating={isAnimating}
               play={handleStartAnimation}
               replay={handleReplayAnimation}
               pause={handlePauseAnimation}
