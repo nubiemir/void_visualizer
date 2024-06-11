@@ -12,6 +12,7 @@ interface ITimeLineProps {
   ref: Ref<HTMLDivElement>;
   data: Accessor<TResult[]>;
   isPaused: Accessor<boolean>;
+  isAnimating: Accessor<boolean>;
   isDone: Accessor<boolean>;
   play: (event: MouseEvent) => Promise<void>;
   replay: (event: MouseEvent) => void;
@@ -24,6 +25,7 @@ interface ITimeLineProps {
 
 const TimeLine = ({
   isPaused,
+  isAnimating,
   isDone,
   play,
   replay,
@@ -34,7 +36,6 @@ const TimeLine = ({
   onpreviousclick,
   ref,
 }: ITimeLineProps) => {
-  const nextDisabled = () => derivative() >= 100;
   const previousDiabled = () => derivative() <= 0;
 
   const handleMouseMove = (event: MouseEvent) => {
@@ -50,7 +51,6 @@ const TimeLine = ({
 
   document.addEventListener("mouseup", (event: MouseEvent) => {
     event.stopPropagation();
-    // sliderRef.removeEventListener("mousedown", handleMouseSlide);
     document.removeEventListener("mousemove", handleMouseMove);
   });
 
@@ -82,7 +82,7 @@ const TimeLine = ({
           }}
         />
 
-        {!isPaused() && !isDone() && (
+        {isAnimating() && (
           <Media
             image={PauseIcon}
             handleClick={pause}
@@ -91,7 +91,7 @@ const TimeLine = ({
             }}
           />
         )}
-        {isPaused() && !isDone() && (
+        {isPaused() && (
           <Media
             image={PlayIcon}
             handleClick={play}
@@ -115,10 +115,10 @@ const TimeLine = ({
           image={ForwardIcon}
           handleClick={onnextclick}
           classList={{
-            "opacity-15": nextDisabled(),
-            "pointer-event-none": nextDisabled(),
-            "cursor-pointer": !nextDisabled(),
-            "cursor-not-allowed": nextDisabled(),
+            "opacity-15": isDone(),
+            "pointer-event-none": isDone(),
+            "cursor-pointer": !isDone(),
+            "cursor-not-allowed": isDone(),
           }}
         />
       </div>
