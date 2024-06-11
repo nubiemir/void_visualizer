@@ -150,7 +150,7 @@ const Container = () => {
 
     if (frameIdx() + 1 >= data().length - 1) {
       handleAnimationFinished();
-      setFrameIdx((prev) => prev + 1);
+      setFrameIdx(data().length - 1);
       drawBars();
       return;
     }
@@ -169,7 +169,7 @@ const Container = () => {
     event.stopPropagation();
 
     if (frameIdx() - 1 <= 0) {
-      setFrameIdx((prev) => prev - 1);
+      setFrameIdx(0);
       drawBars();
       return;
     }
