@@ -96,6 +96,7 @@ const Container = () => {
 
   const handleReplayAnimation = (event: MouseEvent) => {
     setFrameIdx(0);
+    drawBars();
     handleStartAnimation(event);
   };
 
