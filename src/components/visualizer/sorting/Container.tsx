@@ -1,4 +1,4 @@
-import { Accessor, createMemo, createSignal, onMount } from "solid-js";
+import { Accessor, createMemo, createSignal, onMount, Show } from "solid-js";
 import BubbleService from "../../../services/sorting/bubble.service";
 import { TResult, TUniqueArr } from "../../../types";
 import TimeLine from "../../common/timeline/TimeLine";
@@ -24,12 +24,14 @@ const Container = () => {
   const [isPaused, setIsPaused] = createSignal(true);
   const [isDone, setIsDone] = createSignal(false);
   const [isAnimating, setIsAnimating] = createSignal(false);
+  const [showTimeLine, setShowTimeLine] = createSignal(false);
 
   const derivative = () => (frameIdx() / (data().length - 1) || 0) * 100;
 
   let svg!: SVGElement;
   let g!: SVGGElement;
   let sliderRef!: HTMLDivElement;
+  let timer: number | null;
 
   const uniqueArr: Accessor<TUniqueArr[]> = createMemo(() =>
     arr.map((itm, idx) => {
@@ -185,28 +187,44 @@ const Container = () => {
     }
   };
 
+  const handleMouseOver = () => {
+    if (timer !== null && timer !== undefined) clearTimeout(timer);
+    setShowTimeLine(true);
+  };
+  const handleMouseOut = () => {
+    timer = setTimeout(() => {
+      setShowTimeLine(false);
+    }, 500);
+  };
+
   return (
-    <div class="w-[100%] p-4 border border-solid min-h-[400px] min-w-[450px] border-red-500 best">
-      <div class="p-5 border relative h-[100%] max-h-[100%] border-red-500">
+    <div
+      class="w-[100%] p-4  min-h-[400px] min-w-[450px]"
+      onmouseover={handleMouseOver}
+      onmouseleave={handleMouseOut}
+    >
+      <div class="p-5 relative h-[100%] max-h-[100%] ">
         <svg ref={(ele) => (svg = ele)} class="w-[100%]  min-h-[400px]">
           <g ref={(ele) => (g = ele)}></g>
         </svg>
         <div class="w-[100%] absolute bottom-4 left-[50%] translate-x-[-50%] px-5">
           <div class="w-[100%]">
-            <TimeLine
-              ref={sliderRef}
-              data={data}
-              isPaused={isPaused}
-              isAnimating={isAnimating}
-              play={handleStartAnimation}
-              replay={handleReplayAnimation}
-              pause={handlePauseAnimation}
-              onSliderClick={handleSliderClick}
-              isDone={isDone}
-              derivative={derivative}
-              onpreviousclick={handleClickPrevious}
-              onnextclick={handleClickNext}
-            />
+            <Show when={showTimeLine()}>
+              <TimeLine
+                ref={sliderRef}
+                data={data}
+                isPaused={isPaused}
+                isAnimating={isAnimating}
+                play={handleStartAnimation}
+                replay={handleReplayAnimation}
+                pause={handlePauseAnimation}
+                onSliderClick={handleSliderClick}
+                isDone={isDone}
+                derivative={derivative}
+                onpreviousclick={handleClickPrevious}
+                onnextclick={handleClickNext}
+              />
+            </Show>
           </div>
         </div>
       </div>

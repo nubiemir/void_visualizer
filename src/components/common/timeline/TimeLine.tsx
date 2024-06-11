@@ -4,6 +4,8 @@ import ForwardIcon from "../../../assets/forward-step-solid.svg";
 import PauseIcon from "../../../assets/pause-solid.svg";
 import PlayIcon from "../../../assets/play-solid.svg";
 import ReplyIcon from "../../../assets/reply-solid.svg";
+import SettingIcon from "../../../assets/sliders-solid.svg";
+import ExpandIcon from "../../../assets/expand-solid.svg";
 import { TResult } from "../../../types";
 import Media from "./Media";
 import "./timeline.css";
@@ -55,7 +57,7 @@ const TimeLine = ({
   });
 
   return (
-    <div class="flex flex-col gap-4 items-center">
+    <div class="flex flex-col gap-4 items-center bg-[rgba(0,0,0,0.3)] p-5 pb-2 rounded-md transition duration-700 ease-in-out opacity-100">
       <div
         ref={ref}
         onclick={onSliderClick}
@@ -69,58 +71,75 @@ const TimeLine = ({
           }
         ></div>
       </div>
+      <div class="w-[100%] flex justify-between items-center">
+        <div class="w-[100%] flex gap-1 items-center">
+          <Media
+            image={BackwardIcon}
+            handleClick={onpreviousclick}
+            classList={{
+              "opacity-15": previousDiabled(),
+              "pointer-event-none": previousDiabled(),
+              "cursor-pointer": !previousDiabled(),
+              "cursor-not-allowed": previousDiabled(),
+            }}
+          />
 
-      <div class="w-[100%] flex gap-1 items-center">
-        <Media
-          image={BackwardIcon}
-          handleClick={onpreviousclick}
-          classList={{
-            "opacity-15": previousDiabled(),
-            "pointer-event-none": previousDiabled(),
-            "cursor-pointer": !previousDiabled(),
-            "cursor-not-allowed": previousDiabled(),
-          }}
-        />
-
-        {isAnimating() && (
+          {isAnimating() && (
+            <Media
+              image={PauseIcon}
+              handleClick={pause}
+              classList={{
+                "cursor-pointer": !isPaused() && !isDone(),
+              }}
+            />
+          )}
+          {isPaused() && (
+            <Media
+              image={PlayIcon}
+              handleClick={play}
+              classList={{
+                "cursor-pointer": isPaused() && !isDone(),
+              }}
+            />
+          )}
+          {isDone() && (
+            <Media
+              image={ReplyIcon}
+              height={26}
+              width={26}
+              handleClick={replay}
+              classList={{
+                "cursor-pointer": isDone(),
+              }}
+            />
+          )}
           <Media
-            image={PauseIcon}
-            handleClick={pause}
+            image={ForwardIcon}
+            handleClick={onnextclick}
             classList={{
-              "cursor-pointer": !isPaused() && !isDone(),
+              "opacity-15": isDone(),
+              "pointer-event-none": isDone(),
+              "cursor-pointer": !isDone(),
+              "cursor-not-allowed": isDone(),
             }}
           />
-        )}
-        {isPaused() && (
+        </div>
+        <div class="flex gap-1 items-center">
           <Media
-            image={PlayIcon}
-            handleClick={play}
-            classList={{
-              "cursor-pointer": isPaused() && !isDone(),
-            }}
+            image={SettingIcon}
+            height={20}
+            width={20}
+            handleClick={onnextclick}
+            classList={{ "cursor-pointer": true }}
           />
-        )}
-        {isDone() && (
           <Media
-            image={ReplyIcon}
-            height={26}
-            width={26}
-            handleClick={replay}
-            classList={{
-              "cursor-pointer": isDone(),
-            }}
+            image={ExpandIcon}
+            height={18}
+            width={18}
+            handleClick={onnextclick}
+            classList={{ "cursor-pointer": true }}
           />
-        )}
-        <Media
-          image={ForwardIcon}
-          handleClick={onnextclick}
-          classList={{
-            "opacity-15": isDone(),
-            "pointer-event-none": isDone(),
-            "cursor-pointer": !isDone(),
-            "cursor-not-allowed": isDone(),
-          }}
-        />
+        </div>
       </div>
     </div>
   );

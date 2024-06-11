@@ -3,19 +3,6 @@ import BarsService from "./bars.service";
 import { TUniqueArr, TResult } from "../../types";
 import { Accessor } from "solid-js";
 
-// type TBar = d3.Selection<
-//   d3.BaseType | SVGRectElement,
-//   {
-//     rank: number;
-//     value: number;
-//     compare: boolean;
-//     sorted: boolean;
-//     id: number;
-//   },
-//   SVGGElement,
-//   unknown
-// >;
-
 type TPrev = {
   rank: number;
   value: number;
@@ -58,7 +45,7 @@ class BubbleService extends BarsService {
             .attr("height", (d) => y(0) - y(d.value))
             .attr("width", (_) => x.bandwidth())
             .attr("fill", (d) =>
-              d.compare ? "red" : d.sorted ? "green" : "steelblue"
+              d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
             ),
         (update) =>
           update.call((update) =>
@@ -67,7 +54,7 @@ class BubbleService extends BarsService {
               .duration(200)
               .ease(d3.easePolyInOut)
               .attr("fill", (d) =>
-                d.compare ? "red" : d.sorted ? "green" : "steelblue"
+                d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
               )
               .attr("x", (d) => x(d.rank) as number)
           ),
