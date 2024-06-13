@@ -1,4 +1,4 @@
-import { createEffect, onMount } from "solid-js";
+import { onMount } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
 import CollapseIcon from "../../../assets/compress-solid.svg";
 import ExpandIcon from "../../../assets/expand-solid.svg";
@@ -28,10 +28,10 @@ const TimeLine = () => {
   onMount(() => {
     setSliderRef(slider);
   });
-  const derivative = () =>
+  const timeline = () =>
     (previewStore.frameIdx / (previewStore.data.length - 1) || 0) * 100;
 
-  const previousDiabled = () => derivative() <= 0;
+  const previousDiabled = () => timeline() <= 0;
 
   const handleMouseMove = (event: MouseEvent) => {
     event.stopPropagation();
@@ -60,7 +60,7 @@ const TimeLine = () => {
         class="w-[100%] py-[2px] bg-slider-container rounded-md relative cursor-pointer"
       >
         <div
-          style={{ "--custom-width": `calc(${derivative()}%)` }}
+          style={{ "--custom-width": `calc(${timeline()}%)` }}
           class={
             "w-[var(--custom-width)] bg-bold  py-[2px] rounded-l-md  absolute top-0 left-0 slider pointer-events-none"
           }
