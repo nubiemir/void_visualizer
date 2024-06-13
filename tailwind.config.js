@@ -16,6 +16,15 @@ module.exports = {
         "intro-image-color":
           "linear-gradient(to bottom, rgba(0,0,0, 0.2), rgba(0,0,0, 0.7))",
       },
+      animation: {
+        appear: "appear 0.2s ease-in-out alternate",
+      },
+      keyframes: {
+        appear: {
+          from: { opacity: 0 },
+          to: { opacity: 1 },
+        },
+      },
     },
   },
   plugins: [],

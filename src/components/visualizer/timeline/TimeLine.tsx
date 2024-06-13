@@ -1,48 +1,39 @@
-import { Accessor, Ref } from "solid-js";
+import { createEffect, Ref } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
+import CollapseIcon from "../../../assets/compress-solid.svg";
+import ExpandIcon from "../../../assets/expand-solid.svg";
 import ForwardIcon from "../../../assets/forward-step-solid.svg";
 import PauseIcon from "../../../assets/pause-solid.svg";
 import PlayIcon from "../../../assets/play-solid.svg";
 import ReplyIcon from "../../../assets/reply-solid.svg";
 import SettingIcon from "../../../assets/sliders-solid.svg";
-import ExpandIcon from "../../../assets/expand-solid.svg";
-import { TResult } from "../../../types";
+import { usePreviewStore } from "../../../context";
 import Media from "./Media";
 import "./timeline.css";
 
 interface ITimeLineProps {
   ref: Ref<HTMLDivElement>;
-  data: Accessor<TResult[]>;
-  isPaused: Accessor<boolean>;
-  isAnimating: Accessor<boolean>;
-  isDone: Accessor<boolean>;
-  play: (event: MouseEvent) => Promise<void>;
-  replay: (event: MouseEvent) => void;
-  pause: (event: MouseEvent) => void;
-  derivative: () => number;
-  onSliderClick: (event: MouseEvent) => void;
-  onnextclick: (event: MouseEvent) => void;
-  onpreviousclick: (event: MouseEvent) => void;
 }
 
-const TimeLine = ({
-  isPaused,
-  isAnimating,
-  isDone,
-  play,
-  replay,
-  pause,
-  derivative,
-  onSliderClick,
-  onnextclick,
-  onpreviousclick,
-  ref,
-}: ITimeLineProps) => {
+const TimeLine = ({ ref }: ITimeLineProps) => {
+  const {
+    handleExpandToggle,
+    handleClickNext,
+    handleClickPrevious,
+    handleSliderClick,
+    handlePauseAnimation,
+    handleReplayAnimation,
+    handleStartAnimation,
+    previewStore,
+  } = usePreviewStore();
+
+  const derivative = () =>
+    (previewStore.frameIdx / previewStore.data.length || 0) * 100;
   const previousDiabled = () => derivative() <= 0;
 
   const handleMouseMove = (event: MouseEvent) => {
     event.stopPropagation();
-    onSliderClick(event);
+    handleSliderClick(event);
   };
   const handleMouseSlide = (event: MouseEvent) => {
     event.stopPropagation();
@@ -57,10 +48,10 @@ const TimeLine = ({
   });
 
   return (
-    <div class="flex flex-col gap-4 items-center bg-[rgba(0,0,0,0.3)] p-5 pb-2 rounded-md transition duration-700 ease-in-out opacity-100">
+    <div class="flex flex-col gap-4 items-center  p-5 pb-2 rounded-md ">
       <div
         ref={ref}
-        onclick={onSliderClick}
+        onclick={handleSliderClick}
         onmousedown={handleMouseSlide}
         class="w-[100%] py-[2px] bg-slider-container rounded-md relative cursor-pointer"
       >
@@ -75,7 +66,7 @@ const TimeLine = ({
         <div class="w-[100%] flex gap-1 items-center">
           <Media
             image={BackwardIcon}
-            handleClick={onpreviousclick}
+            handleClick={handleClickPrevious}
             classList={{
               "opacity-15": previousDiabled(),
               "pointer-event-none": previousDiabled(),
@@ -84,43 +75,44 @@ const TimeLine = ({
             }}
           />
 
-          {isAnimating() && (
+          {previewStore.isAnimating && (
             <Media
               image={PauseIcon}
-              handleClick={pause}
+              handleClick={handlePauseAnimation}
               classList={{
-                "cursor-pointer": !isPaused() && !isDone(),
+                "cursor-pointer":
+                  !previewStore.isPaused && !previewStore.isDone,
               }}
             />
           )}
-          {isPaused() && (
+          {previewStore.isPaused && (
             <Media
               image={PlayIcon}
-              handleClick={play}
+              handleClick={handleStartAnimation}
               classList={{
-                "cursor-pointer": isPaused() && !isDone(),
+                "cursor-pointer": previewStore.isPaused && !previewStore.isDone,
               }}
             />
           )}
-          {isDone() && (
+          {previewStore.isDone && (
             <Media
               image={ReplyIcon}
               height={26}
               width={26}
-              handleClick={replay}
+              handleClick={handleReplayAnimation}
               classList={{
-                "cursor-pointer": isDone(),
+                "cursor-pointer": previewStore.isDone,
               }}
             />
           )}
           <Media
             image={ForwardIcon}
-            handleClick={onnextclick}
+            handleClick={handleClickNext}
             classList={{
-              "opacity-15": isDone(),
-              "pointer-event-none": isDone(),
-              "cursor-pointer": !isDone(),
-              "cursor-not-allowed": isDone(),
+              "opacity-15": previewStore.isDone,
+              "pointer-event-none": previewStore.isDone,
+              "cursor-pointer": !previewStore.isDone,
+              "cursor-not-allowed": previewStore.isDone,
             }}
           />
         </div>
@@ -129,14 +121,14 @@ const TimeLine = ({
             image={SettingIcon}
             height={20}
             width={20}
-            handleClick={onnextclick}
+            handleClick={handleClickNext}
             classList={{ "cursor-pointer": true }}
           />
           <Media
-            image={ExpandIcon}
+            image={!previewStore.expand ? ExpandIcon : CollapseIcon}
             height={18}
             width={18}
-            handleClick={onnextclick}
+            handleClick={handleExpandToggle}
             classList={{ "cursor-pointer": true }}
           />
         </div>

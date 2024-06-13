@@ -30,7 +30,7 @@ class BubbleService extends BarsService {
     frameIdx: number = 0
   ): void {
     const svg = d3.select(container);
-    const bar = svg.select("g").attr("fill", "steelblue").selectAll("rect");
+    const bar = svg.select("g").attr("fill", "#4682B4").selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
 
@@ -75,11 +75,11 @@ class BubbleService extends BarsService {
     container: SVGElement,
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
-    frameIdx: Accessor<number>
+    frameIdx: number
   ) {
-    let i = frameIdx();
+    let i = frameIdx;
     this.timer = setInterval(() => {
-      if (i > this.getData.length - 1) {
+      if (i >= this.getData.length - 1) {
         handleAnimationFinished();
         clearInterval(this.timer);
         return;
