@@ -1,20 +1,6 @@
 import * as d3 from "d3";
+import { TResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
-import { TUniqueArr, TResult } from "../../types";
-import { Accessor } from "solid-js";
-
-// type TBar = d3.Selection<
-//   d3.BaseType | SVGRectElement,
-//   {
-//     rank: number;
-//     value: number;
-//     compare: boolean;
-//     sorted: boolean;
-//     id: number;
-//   },
-//   SVGGElement,
-//   unknown
-// >;
 
 type TPrev = {
   rank: number;
@@ -43,7 +29,7 @@ class BubbleService extends BarsService {
     frameIdx: number = 0
   ): void {
     const svg = d3.select(container);
-    const bar = svg.select("g").attr("fill", "steelblue").selectAll("rect");
+    const bar = svg.select("g").attr("fill", "#4682B4").selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
 
@@ -58,7 +44,7 @@ class BubbleService extends BarsService {
             .attr("height", (d) => y(0) - y(d.value))
             .attr("width", (_) => x.bandwidth())
             .attr("fill", (d) =>
-              d.compare ? "red" : d.sorted ? "green" : "steelblue"
+              d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
             ),
         (update) =>
           update.call((update) =>
@@ -67,7 +53,7 @@ class BubbleService extends BarsService {
               .duration(200)
               .ease(d3.easePolyInOut)
               .attr("fill", (d) =>
-                d.compare ? "red" : d.sorted ? "green" : "steelblue"
+                d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
               )
               .attr("x", (d) => x(d.rank) as number)
           ),
@@ -88,11 +74,11 @@ class BubbleService extends BarsService {
     container: SVGElement,
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
-    frameIdx: Accessor<number>
+    frameIdx: number
   ) {
-    let i = frameIdx();
+    let i = frameIdx;
     this.timer = setInterval(() => {
-      if (i > this.getData.length - 1) {
+      if (i >= this.getData.length - 1) {
         handleAnimationFinished();
         clearInterval(this.timer);
         return;
