@@ -1,4 +1,4 @@
-import { onMount } from "solid-js";
+import { createEffect, onMount } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
 import CollapseIcon from "../../../assets/compress-solid.svg";
 import ExpandIcon from "../../../assets/expand-solid.svg";
@@ -29,7 +29,8 @@ const TimeLine = () => {
     setSliderRef(slider);
   });
   const derivative = () =>
-    (previewStore.frameIdx / previewStore.data.length || 0) * 100;
+    (previewStore.frameIdx / (previewStore.data.length - 1) || 0) * 100;
+
   const previousDiabled = () => derivative() <= 0;
 
   const handleMouseMove = (event: MouseEvent) => {
