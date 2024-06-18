@@ -1,4 +1,4 @@
-import { onMount } from "solid-js";
+import { onMount, Show } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
 import CollapseIcon from "../../../assets/compress-solid.svg";
 import ExpandIcon from "../../../assets/expand-solid.svg";
@@ -10,6 +10,7 @@ import SettingIcon from "../../../assets/sliders-solid.svg";
 import { usePreviewStore } from "../../../context";
 import Media from "./Media";
 import "./timeline.css";
+import Setting from "../setting";
 
 const TimeLine = () => {
   const {
@@ -20,6 +21,7 @@ const TimeLine = () => {
     handlePauseAnimation,
     handleReplayAnimation,
     handleStartAnimation,
+    handleSettingToggle,
     setSliderRef,
     previewStore,
   } = usePreviewStore();
@@ -29,7 +31,7 @@ const TimeLine = () => {
     setSliderRef(slider);
   });
   const timeline = () =>
-    (previewStore.frameIdx / (previewStore.data.length - 1) || 0) * 100;
+    (previewStore.frameIdx / (previewStore.frames.length - 1) || 0) * 100;
 
   const previousDiabled = () => timeline() <= 0;
 
@@ -121,13 +123,20 @@ const TimeLine = () => {
           />
         </div>
         <div class="flex gap-1 items-center">
-          <Media
-            image={SettingIcon}
-            height={20}
-            width={20}
-            handleClick={handleClickNext}
-            classList={{ "cursor-pointer": true }}
-          />
+          <div class="relative">
+            <div class="absolute left-[100%] top-[100%] translate-y-[-115%] translate-x-[-100%]">
+              <Show when={previewStore.showSetting}>
+                <Setting />
+              </Show>
+            </div>
+            <Media
+              image={SettingIcon}
+              height={20}
+              width={20}
+              handleClick={handleSettingToggle}
+              classList={{ "cursor-pointer": true }}
+            />
+          </div>
           <Media
             image={!previewStore.expand ? ExpandIcon : CollapseIcon}
             height={18}

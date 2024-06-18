@@ -8,6 +8,7 @@ module.exports = {
       },
       colors: {
         bold: "#0D141C",
+        "bold-t": "rgba(13, 20, 28, 0.9)",
         light: "#4F7396",
         "slider-container": "rgba(0,0,0, 0.2)",
       },
