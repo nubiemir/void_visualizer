@@ -13,9 +13,9 @@ type TPrev = {
 class BubbleService extends BarsService {
   private data: TResult[];
   private timer: any;
-  constructor(private arr: TUniqueArr[]) {
+  constructor() {
     super();
-    this.data = this.sort();
+    this.data = [];
   }
 
   get getData() {
@@ -28,6 +28,8 @@ class BubbleService extends BarsService {
     container: SVGElement,
     frameIdx: number = 0
   ): void {
+    if (this.getData.length === 0) return;
+
     const svg = d3.select(container);
     const bar = svg.select("g").attr("fill", "#4682B4").selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
@@ -94,10 +96,9 @@ class BubbleService extends BarsService {
     clearInterval(this.timer);
   }
 
-  private sort(): TResult[] {
-    const arrCopy = this.arr.slice();
-    const result: TResult[] = [];
-
+  public createAnimationFrames(arr: TUniqueArr[]) {
+    const arrCopy = arr.slice();
+    this.data = [];
     const init = {
       data: arrCopy.map((itm, idx) => {
         return {
@@ -110,19 +111,20 @@ class BubbleService extends BarsService {
       }),
     };
 
-    result.push(init);
+    this.data.push(init);
     for (let i = 0; i < arrCopy.length; i++) {
-      const prevData = result[result.length - 1].data;
+      const prevData = this.data[this.data.length - 1].data;
       for (let j = 0; j < arrCopy.length - i - 1; j++) {
         const before = this.populate(arrCopy, prevData, j, i);
-        result.push(before);
+        this.data.push(before);
         if (arrCopy[j].value > arrCopy[j + 1].value) {
           this.swap(arrCopy, j, j + 1);
           const after = this.populate(arrCopy, prevData, j, i);
-          result.push(after);
+          this.data.push(after);
         }
       }
-      result[result.length - 1].data[arrCopy.length - i - 1].sorted = true;
+      this.data[this.data.length - 1].data[arrCopy.length - i - 1].sorted =
+        true;
     }
 
     const final = {
@@ -137,8 +139,7 @@ class BubbleService extends BarsService {
       }),
     };
 
-    result.push(final);
-    return result;
+    this.data.push(final);
   }
 
   private swap(arr: TUniqueArr[], lft: number, rht: number) {

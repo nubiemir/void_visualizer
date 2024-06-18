@@ -1,8 +1,7 @@
 import {
-  Accessor,
   createContext,
   createEffect,
-  createMemo,
+  onMount,
   ParentComponent,
   useContext,
 } from "solid-js";
@@ -19,16 +18,19 @@ type TPreviewStore = {
   isDone: boolean;
   expand: boolean;
   showTimeLine: boolean;
+  showSetting: boolean;
   container: SVGElement | undefined;
   slider: HTMLDivElement | undefined;
   group: SVGGElement | undefined;
-  data: TResult[];
+  data: TUniqueArr[];
+  frames: TResult[];
 };
 
 type TPreviewContext = {
   previewStore: TPreviewStore;
   handleStartAnimation: (event: MouseEvent) => void;
   handleExpandToggle: () => void;
+  handleSettingToggle: () => void;
   handleSliderClick: (event: MouseEvent) => void;
   handleClickNext: (event: MouseEvent) => void;
   handleClickPrevious: (event: MouseEvent) => void;
@@ -38,9 +40,9 @@ type TPreviewContext = {
   setSliderRef: (slider: HTMLDivElement) => void;
   handleMouseOver: () => void;
   handleMouseOut: () => void;
+  setData: (arr: number[]) => void;
 };
 
-const arr = [265, 151, 386, 329, 24, 55, 162, 295, 101];
 const PreviewContext = createContext<TPreviewContext>();
 
 export const PreviewProvider: ParentComponent = (props) => {
@@ -53,19 +55,28 @@ export const PreviewProvider: ParentComponent = (props) => {
     isDone: false,
     expand: false,
     showTimeLine: false,
+    showSetting: false,
     container: undefined,
     slider: undefined,
     group: undefined,
-    data: [],
+    data: [
+      { value: 10, id: 0 },
+      { value: 40, id: 1 },
+      { value: 23, id: 2 },
+      { value: 15, id: 3 },
+      { value: 55, id: 4 },
+    ],
+    frames: [],
   });
 
   let timer: number | null;
 
-  const uniqueArr: Accessor<TUniqueArr[]> = createMemo(() =>
-    arr.map((itm, idx) => {
-      return { value: itm, id: idx };
-    })
-  );
+  const service = new BubbleService();
+
+  onMount(() => {
+    service.createAnimationFrames(previewStore.data);
+    setPreviewStore("frames", service.getData);
+  });
 
   createEffect(() => {
     if (previewStore.container) {
@@ -73,10 +84,9 @@ export const PreviewProvider: ParentComponent = (props) => {
         produce((state) => {
           state.containerWidth = previewStore.container?.clientWidth || 0;
           state.containerHeight = previewStore.container?.clientHeight || 0;
-          state.data = service.getData;
         })
       );
-      drawBars();
+      drawObjects();
     }
   });
 
@@ -97,7 +107,23 @@ export const PreviewProvider: ParentComponent = (props) => {
     );
   };
 
-  const service = new BubbleService(uniqueArr());
+  const setData = (arr: number[]) => {
+    const data: TUniqueArr[] = arr.map((item, idx) => {
+      return {
+        value: item,
+        id: idx,
+      };
+    });
+    service.createAnimationFrames(data);
+    setPreviewStore(
+      produce((state) => {
+        (state.data = data), (state.frames = service.getData);
+        state.frameIdx = 0;
+      })
+    );
+    previewStore.group?.replaceChildren();
+    drawObjects();
+  };
 
   const handleSliderClick = (event: MouseEvent) => {
     event.stopPropagation();
@@ -106,7 +132,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     service.pauseAnimation();
     const pageX = event.pageX;
     const sliderLength = previewStore.slider.clientWidth;
-    const sliderToFrameLenght = sliderLength / (previewStore.data.length - 1);
+    const sliderToFrameLenght = sliderLength / (service.getData.length - 1);
     const leftPosition = previewStore.slider.getBoundingClientRect().left;
     let positionClicked = pageX - leftPosition;
 
@@ -115,17 +141,14 @@ export const PreviewProvider: ParentComponent = (props) => {
     if (positionClicked < 0) positionClicked = 0;
 
     const positionClickIdx = Math.ceil(positionClicked / sliderToFrameLenght);
-    if (positionClickIdx >= previewStore.data.length - 1) {
+    if (positionClickIdx >= service.getData.length - 1) {
       handleAnimationFinished();
       setPreviewStore("frameIdx", positionClickIdx);
-      drawBars();
+      drawObjects();
       return;
     }
 
-    if (
-      positionClickIdx < previewStore.data.length - 1 &&
-      previewStore.isDone
-    ) {
+    if (positionClickIdx < service.getData.length - 1 && previewStore.isDone) {
       handlePauseAnimation();
       setPreviewStore(
         produce((state) => {
@@ -133,12 +156,12 @@ export const PreviewProvider: ParentComponent = (props) => {
           state.isDone = false;
         })
       );
-      drawBars();
+      drawObjects();
       return;
     }
 
     setPreviewStore("frameIdx", positionClickIdx);
-    drawBars();
+    drawObjects();
     previewStore.isAnimating &&
       !previewStore.isPaused &&
       handleStartAnimation(event);
@@ -146,22 +169,22 @@ export const PreviewProvider: ParentComponent = (props) => {
 
   const handleClickNext = (event: MouseEvent) => {
     event.stopPropagation();
-    const length = previewStore.data.length - 1;
+    const length = service.getData.length - 1;
     if (previewStore.frameIdx + 1 >= length) {
       handleAnimationFinished();
 
       setPreviewStore("frameIdx", length);
-      drawBars();
+      drawObjects();
       return;
     }
 
     setPreviewStore("frameIdx", (prev) => prev + 1);
     if (!previewStore.isPaused && previewStore.isAnimating) {
       handlePauseAnimation();
-      drawBars();
+      drawObjects();
       handleStartAnimation(event);
     } else {
-      drawBars();
+      drawObjects();
     }
   };
 
@@ -170,7 +193,7 @@ export const PreviewProvider: ParentComponent = (props) => {
 
     if (previewStore.frameIdx - 1 <= 0) {
       setPreviewStore("frameIdx", 0);
-      drawBars();
+      drawObjects();
       return;
     }
 
@@ -185,10 +208,10 @@ export const PreviewProvider: ParentComponent = (props) => {
     }
     if (!previewStore.isPaused && previewStore.isAnimating) {
       handlePauseAnimation();
-      drawBars();
+      drawObjects();
       handleStartAnimation(event);
     } else {
-      drawBars();
+      drawObjects();
     }
   };
 
@@ -230,7 +253,7 @@ export const PreviewProvider: ParentComponent = (props) => {
 
   const handleReplayAnimation = (event: MouseEvent) => {
     setPreviewStore("frameIdx", 0);
-    drawBars();
+    drawObjects();
     handleStartAnimation(event);
   };
 
@@ -244,7 +267,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     );
   };
 
-  const drawBars = () => {
+  const drawObjects = () => {
     if (previewStore.container) {
       service.draw(
         previewStore.containerWidth,
@@ -256,17 +279,25 @@ export const PreviewProvider: ParentComponent = (props) => {
   };
 
   const handleExpandToggle = () => {
-    setPreviewStore("expand", (expand) => !expand);
+    setPreviewStore("expand", (prev) => !prev);
   };
 
+  const handleSettingToggle = () => {
+    setPreviewStore("showSetting", (prev) => !prev);
+  };
   const handleMouseOver = () => {
     if (timer !== null && timer !== undefined) clearTimeout(timer);
     setPreviewStore("showTimeLine", true);
   };
   const handleMouseOut = () => {
     timer = setTimeout(() => {
-      setPreviewStore("showTimeLine", false);
-    }, 1000);
+      setPreviewStore(
+        produce((state) => {
+          state.showSetting = false;
+          state.showTimeLine = false;
+        })
+      );
+    }, 2000);
   };
 
   window.addEventListener("resize", (event: any) => {
@@ -279,25 +310,12 @@ export const PreviewProvider: ParentComponent = (props) => {
     if (previewStore.isAnimating && !previewStore.isPaused) {
       handlePauseAnimation();
       previewStore.group?.replaceChildren();
-      drawBars();
+      drawObjects();
       handleStartAnimation(event);
     } else {
       previewStore.group?.replaceChildren();
-      drawBars();
+      drawObjects();
     }
-  });
-
-  document.addEventListener("keypress", (event: any) => {
-    const keyCode = event.code;
-    if (
-      keyCode.toLowerCase() === "space" &&
-      previewStore.isPaused &&
-      !previewStore.isDone
-    )
-      return handleStartAnimation(event);
-    if (keyCode.toLowerCase() === "space" && previewStore.isDone)
-      return handleReplayAnimation(event);
-    handlePauseAnimation();
   });
 
   return (
@@ -308,6 +326,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         setSliderRef,
         handleStartAnimation,
         handleExpandToggle,
+        handleSettingToggle,
         handleSliderClick,
         handleClickNext,
         handleClickPrevious,
@@ -315,6 +334,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleReplayAnimation,
         handleMouseOver,
         handleMouseOut,
+        setData,
       }}
     >
       {props.children}
