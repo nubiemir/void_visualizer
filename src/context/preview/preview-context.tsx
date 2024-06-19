@@ -122,6 +122,8 @@ export const PreviewProvider: ParentComponent = (props) => {
       })
     );
     previewStore.group?.replaceChildren();
+    handlePauseAnimation();
+    setPreviewStore("frameIdx", 0);
     drawObjects();
   };
 

@@ -1,4 +1,4 @@
-import { createStore, produce, Store } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import CreateIcon from "../../../assets/circle-plus-solid.svg";
 import ClockIcon from "../../../assets/clock-solid.svg";
 import { usePreviewStore } from "../../../context";
@@ -9,11 +9,12 @@ import TabList from "../../tab/TabList";
 import TabPanel from "../../tab/TabPanel";
 import TabPanels from "../../tab/TabPanels";
 import CheckBox from "./CheckBox";
+import { For } from "solid-js";
 
 export type TOptions = {
   manyDuplicates: boolean;
-  sortedAscending: boolean;
-  sortedDescending: boolean;
+  // sortedAscending: boolean;
+  // sortedDescending: boolean;
 };
 
 const Setting = () => {
@@ -24,15 +25,17 @@ const Setting = () => {
       error: false,
     },
     advanced: {
-      value: "12",
+      value: "5",
       error: false,
       options: {
         manyDuplicates: false,
-        sortedAscending: false,
-        sortedDescending: false,
-      },
+        // sortedAscending: false,
+        // sortedDescending: false,
+      } as TOptions,
     },
   });
+
+  const animationSpeed = [1, 2, 3, 4, 5, 6];
 
   const handleChange = (
     event: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }
@@ -48,13 +51,15 @@ const Setting = () => {
     setStore("advanced", "value", value);
   };
 
-  const handleOptionsChanged = (event: Event, type: keyof TOptions) => {
-    const target = event.target as HTMLInputElement;
-    setStore(
-      produce((state) => {
-        state.advanced.options[type] = true;
-      })
-    );
+  const handleOptionsChanged = (
+    event: Event & {
+      currentTarget: HTMLInputElement;
+      target: HTMLInputElement;
+    },
+    type: keyof TOptions
+  ) => {
+    const target = event.target;
+    setStore("advanced", "options", type, target.checked);
   };
 
   const handleSubmitBasic = () => {
@@ -72,6 +77,28 @@ const Setting = () => {
       return;
     }
     setData(tempData.map((item) => parseInt(item)));
+  };
+
+  const handleSubmitAdvanced = () => {
+    setStore("advanced", "error", false);
+    const size = +store.advanced.value;
+    if (isNaN(size)) {
+      setStore("advanced", "error", true);
+      return;
+    }
+    let limit = Math.floor(
+      store.advanced.options.manyDuplicates ? size / 2.5 : size
+    );
+
+    var numArray = new Array();
+    for (var i = 0; i < size; ++i) {
+      numArray.push(generateRandomNumber(1, limit));
+    }
+    setData(numArray);
+  };
+
+  const generateRandomNumber = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
   return (
@@ -138,7 +165,10 @@ const Setting = () => {
                               onChange={handleOptionsChanged}
                             />
                           </div>
-                          <div class="flex justify-between items-center">
+                          {/**
+                           * TO LOOK INTO INTEGRATING THIS IN THE FUTURE
+                           */}
+                          {/* <div class="flex justify-between items-center">
                             <CheckBox
                               label="Sorted Ascending"
                               checked={store.advanced.options.sortedAscending}
@@ -153,13 +183,13 @@ const Setting = () => {
                               id="sortedDescending"
                               onChange={handleOptionsChanged}
                             />
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                       <div class="w-[100%] flex items-center justify-center my-4">
                         <button
                           class="px-2 py-1 rounded-md mx-auto bg-slate-500"
-                          onclick={handleSubmitBasic}
+                          onclick={handleSubmitAdvanced}
                         >
                           Create
                         </button>
@@ -170,7 +200,22 @@ const Setting = () => {
               </div>
             </TabPanel>
             <TabPanel>
-              <div class="p-4">content 2</div>
+              <div class="p-4">
+                <div class="w-[100%]">
+                  <ul class="flex flex-col gap-3">
+                    <For each={animationSpeed}>
+                      {(item, idx) => (
+                        <li
+                          class="p-2 hover:bg-slate-400 rounded-sm cursor-pointer"
+                          classList={{ "bg-gray-700": idx() === 0 }}
+                        >
+                          {item + "X"}
+                        </li>
+                      )}
+                    </For>
+                  </ul>
+                </div>
+              </div>
             </TabPanel>
           </TabPanels>
         </TabContext>
