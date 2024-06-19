@@ -134,7 +134,7 @@ const TimeLine = () => {
               height={20}
               width={20}
               handleClick={handleSettingToggle}
-              classList={{ "cursor-pointer": true }}
+              classList={{ "cursor-pointer": true, "setting-btn": true }}
             />
           </div>
           <Media

@@ -18,9 +18,11 @@ body {
 ::-webkit-scrollbar {
   width: 6px;
   background: #0d141c;
+  border-radius: 0.375rem;
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: #230d4f;
+  background-color: #3b324d;
+  border-radius: 0.375rem;
 }

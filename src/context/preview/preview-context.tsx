@@ -30,7 +30,7 @@ type TPreviewContext = {
   previewStore: TPreviewStore;
   handleStartAnimation: (event: MouseEvent) => void;
   handleExpandToggle: () => void;
-  handleSettingToggle: () => void;
+  handleSettingToggle: (event: MouseEvent) => void;
   handleSliderClick: (event: MouseEvent) => void;
   handleClickNext: (event: MouseEvent) => void;
   handleClickPrevious: (event: MouseEvent) => void;
@@ -282,7 +282,8 @@ export const PreviewProvider: ParentComponent = (props) => {
     setPreviewStore("expand", (prev) => !prev);
   };
 
-  const handleSettingToggle = () => {
+  const handleSettingToggle = (event: MouseEvent) => {
+    event.stopPropagation();
     setPreviewStore("showSetting", (prev) => !prev);
   };
   const handleMouseOver = () => {
@@ -315,6 +316,18 @@ export const PreviewProvider: ParentComponent = (props) => {
     } else {
       previewStore.group?.replaceChildren();
       drawObjects();
+    }
+  });
+
+  document.addEventListener("click", (event: MouseEvent) => {
+    const target = event.target as Element;
+    const isParent = target.closest(".setting");
+    if (
+      !isParent &&
+      !target.classList.contains("setting-btn") &&
+      previewStore.showSetting
+    ) {
+      setPreviewStore("showSetting", false);
     }
   });
 

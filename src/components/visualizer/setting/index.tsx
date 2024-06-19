@@ -1,4 +1,4 @@
-import { createStore } from "solid-js/store";
+import { createStore, produce, Store } from "solid-js/store";
 import CreateIcon from "../../../assets/circle-plus-solid.svg";
 import ClockIcon from "../../../assets/clock-solid.svg";
 import { usePreviewStore } from "../../../context";
@@ -8,6 +8,13 @@ import Tab from "../../tab/Tab";
 import TabList from "../../tab/TabList";
 import TabPanel from "../../tab/TabPanel";
 import TabPanels from "../../tab/TabPanels";
+import CheckBox from "./CheckBox";
+
+export type TOptions = {
+  manyDuplicates: boolean;
+  sortedAscending: boolean;
+  sortedDescending: boolean;
+};
 
 const Setting = () => {
   const { setData, previewStore } = usePreviewStore();
@@ -16,16 +23,38 @@ const Setting = () => {
       value: previewStore.data.map((item) => item.value).join(","),
       error: false,
     },
-    advanced: {},
+    advanced: {
+      value: "12",
+      error: false,
+      options: {
+        manyDuplicates: false,
+        sortedAscending: false,
+        sortedDescending: false,
+      },
+    },
   });
 
   const handleChange = (
     event: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }
   ) => {
-    console.log("ksdfj");
-    event.stopPropagation();
     const value = event.target.value;
     setStore("basic", "value", value);
+  };
+
+  const handleSizeChange = (
+    event: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }
+  ) => {
+    const value = event.target.value;
+    setStore("advanced", "value", value);
+  };
+
+  const handleOptionsChanged = (event: Event, type: keyof TOptions) => {
+    const target = event.target as HTMLInputElement;
+    setStore(
+      produce((state) => {
+        state.advanced.options[type] = true;
+      })
+    );
   };
 
   const handleSubmitBasic = () => {
@@ -46,7 +75,7 @@ const Setting = () => {
   };
 
   return (
-    <section class="text-white bg-bold-t rounded-md min-w-[250px] h-[250px]">
+    <section class="text-white bg-bold-t rounded-md min-w-[250px] h-[250px] setting">
       <div class="overflow-x-hidden overflow-auto h-[100%]">
         <TabContext>
           <div class="bg-bold p-3 pb-0 rounded-t-md">
@@ -67,6 +96,7 @@ const Setting = () => {
                     <TabPanel>
                       <div class="py-2">
                         <Input
+                          id="data-arr"
                           error={store.basic.error}
                           type="text"
                           value={store.basic.value}
@@ -75,18 +105,68 @@ const Setting = () => {
                           handleChange={handleChange}
                         />
                       </div>
+                      <div class="w-[100%] flex items-center justify-center mt-4">
+                        <button
+                          class="px-2 py-1 rounded-md mx-auto bg-slate-500"
+                          onclick={handleSubmitBasic}
+                        >
+                          Create
+                        </button>
+                      </div>
                     </TabPanel>
-                    <TabPanel>content sub 2</TabPanel>
+                    <TabPanel>
+                      <div class="w-[100%] py-2">
+                        <div class="flex justify-between items-center">
+                          <label for="size-arr">Size</label>
+                          <div class="w-[30%]">
+                            <Input
+                              id="size-arr"
+                              error={store.advanced.error}
+                              type="text"
+                              value={store.advanced.value}
+                              placeholder="Size"
+                              handleChange={handleSizeChange}
+                            />
+                          </div>
+                        </div>
+                        <div class="w-[100%] mt-4 flex flex-col gap-4">
+                          <div class="flex justify-between items-center">
+                            <CheckBox
+                              label="Many Dublicates"
+                              checked={store.advanced.options.manyDuplicates}
+                              id="manyDuplicates"
+                              onChange={handleOptionsChanged}
+                            />
+                          </div>
+                          <div class="flex justify-between items-center">
+                            <CheckBox
+                              label="Sorted Ascending"
+                              checked={store.advanced.options.sortedAscending}
+                              id="sortedAscending"
+                              onChange={handleOptionsChanged}
+                            />
+                          </div>
+                          <div class="flex justify-between items-center">
+                            <CheckBox
+                              label="Sorted Descending"
+                              checked={store.advanced.options.sortedDescending}
+                              id="sortedDescending"
+                              onChange={handleOptionsChanged}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="w-[100%] flex items-center justify-center my-4">
+                        <button
+                          class="px-2 py-1 rounded-md mx-auto bg-slate-500"
+                          onclick={handleSubmitBasic}
+                        >
+                          Create
+                        </button>
+                      </div>
+                    </TabPanel>
                   </TabPanels>
                 </TabContext>
-                <div class="w-[100%] flex items-center justify-center mt-4">
-                  <button
-                    class="px-2 py-1 rounded-md mx-auto bg-slate-500"
-                    onclick={handleSubmitBasic}
-                  >
-                    Create
-                  </button>
-                </div>
               </div>
             </TabPanel>
             <TabPanel>

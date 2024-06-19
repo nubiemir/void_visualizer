@@ -3,6 +3,7 @@ import { Show } from "solid-js";
 interface IInputProps {
   type: string;
   placeholder?: string;
+  id?: string;
   value: string;
   helperText?: string;
   error: boolean;
@@ -23,6 +24,7 @@ const Input = (props: IInputProps) => {
         placeholder={props.placeholder}
         onChange={(ev) => props.handleChange(ev)}
         onInput={(ev) => ev.stopPropagation()}
+        id={props.id}
       />
       <Show when={props.helperText}>
         <p
