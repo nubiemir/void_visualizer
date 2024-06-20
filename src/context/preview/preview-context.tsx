@@ -17,6 +17,7 @@ type TPreviewStore = {
   isAnimating: boolean;
   isDone: boolean;
   expand: boolean;
+  speed: number;
   showTimeLine: boolean;
   showSetting: boolean;
   container: SVGElement | undefined;
@@ -34,6 +35,7 @@ type TPreviewContext = {
   handleSliderClick: (event: MouseEvent) => void;
   handleClickNext: (event: MouseEvent) => void;
   handleClickPrevious: (event: MouseEvent) => void;
+  handleSpeedChange: (value: number) => void;
   handlePauseAnimation: () => void;
   handleReplayAnimation: (event: MouseEvent) => void;
   setContainerRefs: (container: SVGElement, group: SVGGElement) => void;
@@ -50,6 +52,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     containerWidth: 0,
     containerHeight: 0,
     frameIdx: 0,
+    speed: 1,
     isPaused: true,
     isAnimating: false,
     isDone: false,
@@ -122,6 +125,8 @@ export const PreviewProvider: ParentComponent = (props) => {
       })
     );
     previewStore.group?.replaceChildren();
+    handlePauseAnimation();
+    setPreviewStore("frameIdx", 0);
     drawObjects();
   };
 
@@ -233,7 +238,8 @@ export const PreviewProvider: ParentComponent = (props) => {
         previewStore.container,
         handleFrameChange,
         handleAnimationFinished,
-        previewStore.frameIdx
+        previewStore.frameIdx,
+        previewStore.speed
       );
   };
 
@@ -301,6 +307,24 @@ export const PreviewProvider: ParentComponent = (props) => {
     }, 2000);
   };
 
+  const handleSpeedChange = (value: number) => {
+    setPreviewStore("speed", value);
+    if (!previewStore.isAnimating) return;
+
+    service.pauseAnimation();
+
+    if (previewStore.container)
+      service.animate(
+        previewStore.containerWidth,
+        previewStore.containerHeight,
+        previewStore.container,
+        handleFrameChange,
+        handleAnimationFinished,
+        previewStore.frameIdx,
+        previewStore.speed
+      );
+  };
+
   window.addEventListener("resize", (event: any) => {
     setPreviewStore(
       produce((state) => {
@@ -342,6 +366,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleSettingToggle,
         handleSliderClick,
         handleClickNext,
+        handleSpeedChange,
         handleClickPrevious,
         handlePauseAnimation,
         handleReplayAnimation,

@@ -8,9 +8,9 @@ import PlayIcon from "../../../assets/play-solid.svg";
 import ReplyIcon from "../../../assets/reply-solid.svg";
 import SettingIcon from "../../../assets/sliders-solid.svg";
 import { usePreviewStore } from "../../../context";
+import Setting from "../setting";
 import Media from "./Media";
 import "./timeline.css";
-import Setting from "../setting";
 
 const TimeLine = () => {
   const {
