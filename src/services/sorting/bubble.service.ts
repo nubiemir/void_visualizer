@@ -26,7 +26,8 @@ class BubbleService extends BarsService {
     containerWidth: number,
     containerHeight: number,
     container: SVGElement,
-    frameIdx: number = 0
+    frameIdx: number = 0,
+    speed: number = 1
   ): void {
     if (this.getData.length === 0) return;
 
@@ -52,7 +53,7 @@ class BubbleService extends BarsService {
           update.call((update) =>
             update
               .transition()
-              .duration(200)
+              .duration(200 / speed)
               .ease(d3.easePolyInOut)
               .attr("fill", (d) =>
                 d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
@@ -76,7 +77,8 @@ class BubbleService extends BarsService {
     container: SVGElement,
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
-    frameIdx: number
+    frameIdx: number,
+    speed: number
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -86,10 +88,10 @@ class BubbleService extends BarsService {
         return;
       }
 
-      this.draw(containerWidth, containerHeight, container, i);
+      this.draw(containerWidth, containerHeight, container, i, speed);
       i++;
       handleFrameChange(i);
-    }, 500);
+    }, 500 / speed);
   }
 
   pauseAnimation() {
@@ -112,7 +114,9 @@ class BubbleService extends BarsService {
     };
 
     this.data.push(init);
+    let swapped = false;
     for (let i = 0; i < arrCopy.length; i++) {
+      swapped = false;
       const prevData = this.data[this.data.length - 1].data;
       for (let j = 0; j < arrCopy.length - i - 1; j++) {
         const before = this.populate(arrCopy, prevData, j, i);
@@ -121,10 +125,12 @@ class BubbleService extends BarsService {
           this.swap(arrCopy, j, j + 1);
           const after = this.populate(arrCopy, prevData, j, i);
           this.data.push(after);
+          swapped = true;
         }
       }
       this.data[this.data.length - 1].data[arrCopy.length - i - 1].sorted =
         true;
+      if (!swapped) break;
     }
 
     const final = {

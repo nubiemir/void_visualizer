@@ -8,10 +8,9 @@ import PlayIcon from "../../../assets/play-solid.svg";
 import ReplyIcon from "../../../assets/reply-solid.svg";
 import SettingIcon from "../../../assets/sliders-solid.svg";
 import { usePreviewStore } from "../../../context";
+import Setting from "../setting";
 import Media from "./Media";
 import "./timeline.css";
-import Setting from "../setting";
-import Switch from "../../common/Switch";
 
 const TimeLine = () => {
   const {
@@ -124,7 +123,6 @@ const TimeLine = () => {
           />
         </div>
         <div class="flex gap-1 items-center">
-          <Switch />
           <div class="relative">
             <div class="absolute left-[100%] top-[100%] translate-y-[-115%] translate-x-[-100%]">
               <Show when={previewStore.showSetting}>

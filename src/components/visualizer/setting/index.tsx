@@ -18,7 +18,7 @@ export type TOptions = {
 };
 
 const Setting = () => {
-  const { setData, previewStore } = usePreviewStore();
+  const { setData, handleSpeedChange, previewStore } = usePreviewStore();
   const [store, setStore] = createStore({
     basic: {
       value: previewStore.data.map((item) => item.value).join(","),
@@ -204,10 +204,13 @@ const Setting = () => {
                 <div class="w-[100%]">
                   <ul class="flex flex-col gap-3">
                     <For each={animationSpeed}>
-                      {(item, idx) => (
+                      {(item, _) => (
                         <li
                           class="p-2 hover:bg-slate-400 rounded-sm cursor-pointer"
-                          classList={{ "bg-gray-700": idx() === 0 }}
+                          classList={{
+                            "bg-gray-700": item === previewStore.speed,
+                          }}
+                          onclick={() => handleSpeedChange(item)}
                         >
                           {item + "X"}
                         </li>
