@@ -13,8 +13,8 @@ import { For } from "solid-js";
 
 export type TOptions = {
   manyDuplicates: boolean;
-  // sortedAscending: boolean;
-  // sortedDescending: boolean;
+  sortedAscending: boolean;
+  sortedDescending: boolean;
 };
 
 const Setting = () => {
@@ -29,8 +29,8 @@ const Setting = () => {
       error: false,
       options: {
         manyDuplicates: false,
-        // sortedAscending: false,
-        // sortedDescending: false,
+        sortedAscending: false,
+        sortedDescending: false,
       } as TOptions,
     },
   });
@@ -90,10 +90,15 @@ const Setting = () => {
       store.advanced.options.manyDuplicates ? size / 2.5 : size
     );
 
-    var numArray = new Array();
+    const numArray = new Array();
     for (var i = 0; i < size; ++i) {
       numArray.push(generateRandomNumber(1, limit));
     }
+    store.advanced.options.sortedAscending
+      ? numArray.sort((a, b) => a - b)
+      : store.advanced.options.sortedDescending
+      ? numArray.sort((a, b) => b - a)
+      : numArray;
     setData(numArray);
   };
 
@@ -168,22 +173,24 @@ const Setting = () => {
                           {/**
                            * TO LOOK INTO INTEGRATING THIS IN THE FUTURE
                            */}
-                          {/* <div class="flex justify-between items-center">
+                          <div class="flex justify-between items-center">
                             <CheckBox
                               label="Sorted Ascending"
                               checked={store.advanced.options.sortedAscending}
                               id="sortedAscending"
                               onChange={handleOptionsChanged}
+                              disabled={store.advanced.options.sortedDescending}
                             />
                           </div>
                           <div class="flex justify-between items-center">
                             <CheckBox
                               label="Sorted Descending"
                               checked={store.advanced.options.sortedDescending}
+                              disabled={store.advanced.options.sortedAscending}
                               id="sortedDescending"
                               onChange={handleOptionsChanged}
                             />
-                          </div> */}
+                          </div>
                         </div>
                       </div>
                       <div class="w-[100%] flex items-center justify-center my-4">

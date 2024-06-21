@@ -21,6 +21,13 @@ const Menu = () => {
       },
       {
         image: LinkImage,
+        title: "Selection Sort",
+        subtitle: "This is an selection sort",
+        visualizeLink: `http://localhost:5173${pathname}/visualize-selection-sort`,
+        readLink: `http://localhost:5173${pathname}/visualize-insertion-sort`,
+      },
+      {
+        image: LinkImage,
         title: "Insertion Sort",
         subtitle: "This is an insertion sort",
         visualizeLink: `http://localhost:5173${pathname}/visualize-insertion-sort`,
