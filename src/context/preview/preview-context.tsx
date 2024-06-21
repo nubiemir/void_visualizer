@@ -7,7 +7,8 @@ import {
 } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import BubbleService from "../../services/sorting/bubble.service";
-import { TResult, TUniqueArr } from "../../types";
+import { TResult, TSelectionResult, TUniqueArr } from "../../types";
+import SelectionService from "../../services/sorting/selection.service";
 
 type TPreviewStore = {
   containerWidth: number;
@@ -24,7 +25,7 @@ type TPreviewStore = {
   slider: HTMLDivElement | undefined;
   group: SVGGElement | undefined;
   data: TUniqueArr[];
-  frames: TResult[];
+  frames: TResult[] | TSelectionResult[];
 };
 
 type TPreviewContext = {
@@ -74,7 +75,7 @@ export const PreviewProvider: ParentComponent = (props) => {
 
   let timer: number | null;
 
-  const service = new BubbleService();
+  const service = new SelectionService();
 
   onMount(() => {
     service.createAnimationFrames(previewStore.data);
