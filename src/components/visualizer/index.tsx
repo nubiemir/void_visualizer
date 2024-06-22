@@ -11,7 +11,7 @@ const Visualizer = () => {
       when={previewStore.expand}
       fallback={
         <section class="w-[70%] m-auto mt-4">
-          <div class="mb-4">
+          <div class="mb-4 flex">
             <BreadCrumbs />
           </div>
           <Container />

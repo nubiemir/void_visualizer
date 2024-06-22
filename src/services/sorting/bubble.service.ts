@@ -146,6 +146,7 @@ class BubbleService extends BarsService implements ISorting {
     };
 
     this.data.push(final);
+    return this.data;
   }
 
   private swap(arr: TUniqueArr[], lft: number, rht: number) {

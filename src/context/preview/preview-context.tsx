@@ -1,3 +1,4 @@
+import { useParams } from "@solidjs/router";
 import {
   createContext,
   createEffect,
@@ -6,9 +7,8 @@ import {
   useContext,
 } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import BubbleService from "../../services/sorting/bubble.service";
+import { sortingFactory } from "../../services/sorting/sortingFactory";
 import { TResult, TSelectionResult, TUniqueArr } from "../../types";
-import SelectionService from "../../services/sorting/selection.service";
 
 type TPreviewStore = {
   containerWidth: number;
@@ -75,11 +75,12 @@ export const PreviewProvider: ParentComponent = (props) => {
 
   let timer: number | null;
 
-  const service = new SelectionService();
+  const { id } = useParams();
+  const service = sortingFactory(id);
 
   onMount(() => {
-    service.createAnimationFrames(previewStore.data);
-    setPreviewStore("frames", service.getData);
+    const data = service.createAnimationFrames(previewStore.data);
+    setPreviewStore("frames", data);
   });
 
   createEffect(() => {
@@ -118,11 +119,14 @@ export const PreviewProvider: ParentComponent = (props) => {
         id: idx,
       };
     });
-    service.createAnimationFrames(data);
+    const frames = service.createAnimationFrames(data);
+
     setPreviewStore(
       produce((state) => {
-        (state.data = data), (state.frames = service.getData);
+        state.data = data;
+        state.frames = frames;
         state.frameIdx = 0;
+        state.isDone = false;
       })
     );
     previewStore.group?.replaceChildren();
@@ -138,7 +142,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     service.pauseAnimation();
     const pageX = event.pageX;
     const sliderLength = previewStore.slider.clientWidth;
-    const sliderToFrameLenght = sliderLength / (service.getData.length - 1);
+    const sliderToFrameLenght = sliderLength / (previewStore.frames.length - 1);
     const leftPosition = previewStore.slider.getBoundingClientRect().left;
     let positionClicked = pageX - leftPosition;
 
@@ -146,15 +150,18 @@ export const PreviewProvider: ParentComponent = (props) => {
 
     if (positionClicked < 0) positionClicked = 0;
 
-    const positionClickIdx = Math.ceil(positionClicked / sliderToFrameLenght);
-    if (positionClickIdx >= service.getData.length - 1) {
+    const positionClickIdx = Math.round(positionClicked / sliderToFrameLenght);
+    if (positionClickIdx >= previewStore.frames.length - 1) {
       handleAnimationFinished();
       setPreviewStore("frameIdx", positionClickIdx);
       drawObjects();
       return;
     }
 
-    if (positionClickIdx < service.getData.length - 1 && previewStore.isDone) {
+    if (
+      positionClickIdx < previewStore.frames.length - 1 &&
+      previewStore.isDone
+    ) {
       handlePauseAnimation();
       setPreviewStore(
         produce((state) => {
@@ -175,7 +182,7 @@ export const PreviewProvider: ParentComponent = (props) => {
 
   const handleClickNext = (event: MouseEvent) => {
     event.stopPropagation();
-    const length = service.getData.length - 1;
+    const length = previewStore.frames.length - 1;
     if (previewStore.frameIdx + 1 >= length) {
       handleAnimationFinished();
 
@@ -280,7 +287,8 @@ export const PreviewProvider: ParentComponent = (props) => {
         previewStore.containerWidth,
         previewStore.containerHeight,
         previewStore.container,
-        previewStore.frameIdx
+        previewStore.frameIdx,
+        previewStore.speed
       );
     }
   };

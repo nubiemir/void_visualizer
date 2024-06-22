@@ -43,5 +43,5 @@ export interface ISorting {
     speed: number
   ): void;
   pauseAnimation(): void;
-  createAnimationFrames(arr: TUniqueArr[]): void;
+  createAnimationFrames(arr: TUniqueArr[]): any[];
 }
