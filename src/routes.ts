@@ -11,7 +11,7 @@ export const routes = [
   },
 
   {
-    path: "/algorithm/*",
+    path: "/algorithm/:id",
     component: lazy(() => import("../src/pages/Visualizer/Sorting")),
   },
   {

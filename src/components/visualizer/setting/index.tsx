@@ -35,7 +35,7 @@ const Setting = () => {
     },
   });
 
-  const animationSpeed = [1, 2, 3, 4, 5, 6];
+  const animationSpeed = [1, 2, 3, 4, 5, 6, 7, 8];
 
   const handleChange = (
     event: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }

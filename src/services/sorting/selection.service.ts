@@ -59,7 +59,7 @@ class SelectionService extends BarsService implements ISorting {
                   : d.selected
                   ? "#b44660"
                   : d.active
-                  ? "#b4a746"
+                  ? "#b49346"
                   : "#4682B4"
               )
               .attr("x", (d) => x(d.rank) as number)
@@ -95,7 +95,7 @@ class SelectionService extends BarsService implements ISorting {
       this.draw(containerWidth, containerHeight, container, i, speed);
       i++;
       handleFrameChange(i);
-    }, 500 / speed);
+    }, 800 / speed);
   }
 
   pauseAnimation() {
@@ -141,6 +141,7 @@ class SelectionService extends BarsService implements ISorting {
         }),
       });
     }
+    return this.data;
   }
 
   private swap(arr: TUniqueArr[], lft: number, rht: number) {

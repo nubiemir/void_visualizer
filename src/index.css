@@ -26,3 +26,9 @@ body {
   background-color: #3b324d;
   border-radius: 0.375rem;
 }
+
+@layer utilities {
+  .final-clip {
+    clip-path: polygon(95% 0, 100% 50%, 95% 100%, 0 100%, 05% 50%, 0 0);
+  }
+}
