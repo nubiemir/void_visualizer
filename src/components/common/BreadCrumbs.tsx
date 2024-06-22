@@ -17,7 +17,7 @@ const BreadCrumbs = () => {
         {(link, idx) => {
           url += link === "" ? "" : `/${link}`;
           return (
-            <A href={`http://localhost:5173${url}`}>
+            <A href={`${url}`}>
               <span
                 class="mr-2"
                 classList={{ "text-blue-600": idx() !== pathname().length - 1 }}
