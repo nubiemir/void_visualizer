@@ -1,6 +1,9 @@
 name: void_visualizer
 run-name: ${{github.actor}}
 on:
+  pull_request:
+    branches:
+      - trunk
   push:
     branches:
       - trunk
