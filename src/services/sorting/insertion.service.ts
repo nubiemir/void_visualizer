@@ -212,26 +212,26 @@ class InsertionService extends BarsService implements ISorting {
     arr[rht] = tmp;
   }
 
-  private populate(
-    arr: TUniqueArr[],
-    selectedIdx: number | null = null,
-    activIdx: number | null = null
-  ) {
-    const prevData =
-      this.data.length > 0 ? this.data[this.data.length - 1].data : null;
+  //   private populate(
+  //     arr: TUniqueArr[],
+  //     selectedIdx: number | null = null,
+  //     activIdx: number | null = null
+  //   ) {
+  //     const prevData =
+  //       this.data.length > 0 ? this.data[this.data.length - 1].data : null;
 
-    return {
-      data: arr.map((item, idx) => {
-        return {
-          ...item,
-          rank: idx,
-          selected: selectedIdx !== null ? selectedIdx === idx : false,
-          active: activIdx !== null ? idx === activIdx : false,
-          sorted: prevData !== null ? prevData[idx].sorted : false,
-        };
-      }),
-    };
-  }
+  //     return {
+  //       data: arr.map((item, idx) => {
+  //         return {
+  //           ...item,
+  //           rank: idx,
+  //           selected: selectedIdx !== null ? selectedIdx === idx : false,
+  //           active: activIdx !== null ? idx === activIdx : false,
+  //           sorted: prevData !== null ? prevData[idx].sorted : false,
+  //         };
+  //       }),
+  //     };
+  //   }
 }
 
 export default InsertionService;
