@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { ISorting, TSelectionResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
 
-class InsertionService extends BarsService implements ISorting {
+class MergeService extends BarsService implements ISorting {
   private data: TSelectionResult[];
   private timer: any;
   constructor() {
@@ -73,9 +73,8 @@ class InsertionService extends BarsService implements ISorting {
   //notes:
   /**
    * normal
-   * duration 100
-   * delay between animations 500
-   * waiting time 1000
+   * duration 200
+   * waiting time 800
    */
   async animate(
     containerWidth: number,
@@ -147,7 +146,7 @@ class InsertionService extends BarsService implements ISorting {
             id: item.id,
             rank: idx,
             selected: idx === j,
-            sorted: idx <= i + 1,
+            sorted: this.data[this.data.length - 1].data[idx].sorted,
             active: false,
           };
         }),
@@ -162,7 +161,7 @@ class InsertionService extends BarsService implements ISorting {
               id: item.id,
               rank: idx,
               selected: this.data[this.data.length - 1].data[idx].selected,
-              sorted: idx <= i + 1,
+              sorted: this.data[this.data.length - 1].data[idx].sorted,
               active: idx === j - 1,
             };
           }),
@@ -177,7 +176,7 @@ class InsertionService extends BarsService implements ISorting {
                 id: item.id,
                 rank: idx,
                 selected: idx === j - 1,
-                sorted: idx <= i + 1,
+                sorted: idx <= j,
                 active: idx === j,
               };
             }),
@@ -211,27 +210,6 @@ class InsertionService extends BarsService implements ISorting {
     arr[lft] = arr[rht];
     arr[rht] = tmp;
   }
-
-  //   private populate(
-  //     arr: TUniqueArr[],
-  //     selectedIdx: number | null = null,
-  //     activIdx: number | null = null
-  //   ) {
-  //     const prevData =
-  //       this.data.length > 0 ? this.data[this.data.length - 1].data : null;
-
-  //     return {
-  //       data: arr.map((item, idx) => {
-  //         return {
-  //           ...item,
-  //           rank: idx,
-  //           selected: selectedIdx !== null ? selectedIdx === idx : false,
-  //           active: activIdx !== null ? idx === activIdx : false,
-  //           sorted: prevData !== null ? prevData[idx].sorted : false,
-  //         };
-  //       }),
-  //     };
-  //   }
 }
 
-export default InsertionService;
+export default MergeService;
