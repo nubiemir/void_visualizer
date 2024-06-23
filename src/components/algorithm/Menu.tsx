@@ -30,7 +30,7 @@ const Menu = () => {
         image: LinkImage,
         title: "Insertion Sort",
         subtitle: "This is an insertion sort",
-        visualizeLink: `${pathname}/visualize-insertion-sort`,
+        visualizeLink: `${pathname}/insertion`,
         readLink: `${pathname}/visualize-insertion-sort`,
       },
       {
