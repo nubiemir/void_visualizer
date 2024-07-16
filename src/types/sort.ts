@@ -23,6 +23,17 @@ export type TSelectionResult = {
     id: number;
   }[];
 };
+export type TMergeResult = {
+  data: {
+    rank: number;
+    value: number;
+    active: boolean;
+    location: number;
+    selected: boolean;
+    sorted: boolean;
+    id: number;
+  }[];
+};
 
 export interface ISorting {
   draw(

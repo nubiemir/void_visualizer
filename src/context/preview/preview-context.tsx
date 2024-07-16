@@ -121,6 +121,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     });
     const frames = service.createAnimationFrames(data);
 
+
     setPreviewStore(
       produce((state) => {
         state.data = data;

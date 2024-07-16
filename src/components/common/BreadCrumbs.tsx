@@ -15,9 +15,9 @@ const BreadCrumbs = () => {
     <>
       <For each={pathname()}>
         {(link, idx) => {
-          url += link === "" ? "/" : `/${link}`;
+          url += link === "" ? "" : `/${link}`;
           return (
-            <A href={`${url}`}>
+            <A href={`${url === "" ? "/" : url}`}>
               <span
                 class="mr-2"
                 classList={{ "text-blue-600": idx() !== pathname().length - 1 }}
