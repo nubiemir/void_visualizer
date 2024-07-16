@@ -1,9 +1,9 @@
 import * as d3 from "d3";
-import { ISorting, TSelectionResult, TUniqueArr } from "../../types";
+import { ISorting, TMergeResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
 
 class MergeService extends BarsService implements ISorting {
-  private data: TSelectionResult[];
+  private data: TMergeResult[];
   private timer: any;
   constructor() {
     super();
@@ -47,6 +47,9 @@ class MergeService extends BarsService implements ISorting {
                 ? "#46b48a"
                 : "#4682B4"
             )
+            .attr("x", (d) =>
+              d.selected ? (x(d.location) as number) : (x(d.rank) as number)
+            )
             .attr("y", (d) => (d.selected ? y(0) : y(d.value))),
         (update) =>
           update.call((update) =>
@@ -63,8 +66,10 @@ class MergeService extends BarsService implements ISorting {
                   ? "#46b48a"
                   : "#4682B4"
               )
-              .attr("x", (d) => x(d.rank) as number)
-              .attr("y", (d) => (d.selected ? y(0) : y(d.value)))
+              .attr("y", (d) => (d.selected ? y(50) : y(d.value)))
+              .attr("x", (d) =>
+                d.selected ? (x(d.location) as number) : (x(d.rank) as number)
+              )
           ),
         (exit) => exit.remove()
       );
@@ -107,12 +112,13 @@ class MergeService extends BarsService implements ISorting {
     const arrCopy = arr.slice();
     this.data = [];
 
-    const init = {
+    const compare: TMergeResult = {
       data: arrCopy.map((item, idx) => {
         return {
           value: item.value,
           id: item.id,
           rank: idx,
+          location: idx,
           selected: false,
           sorted: false,
           active: false,
@@ -120,95 +126,179 @@ class MergeService extends BarsService implements ISorting {
       }),
     };
 
-    this.data.push(init);
+    this.data.push(compare);
 
-    const setInit = {
-      data: arrCopy.map((item, idx) => {
+    const mergeSort = (left: number, right: number) => {
+      if (left >= right) return;
+
+      const middle = left + parseInt(`${(right - left) / 2}`);
+      mergeSort(left, middle);
+      mergeSort(middle + 1, right);
+      this.merge(arrCopy, left, middle, right);
+    };
+    mergeSort(0, arrCopy.length - 1);
+    return this.data;
+  }
+
+  private merge(
+    arr: TUniqueArr[],
+    left: number,
+    middle: number,
+    right: number
+  ) {
+    const lftLength = middle - left + 1;
+    const rgtLength = right - middle;
+    const leftArr: TUniqueArr[] = new Array(lftLength);
+    const rightArr: TUniqueArr[] = new Array(rgtLength);
+
+    for (let i = 0; i < lftLength; i++) {
+      leftArr[i] = arr[left + i];
+    }
+    for (let j = 0; j < rgtLength; j++) {
+      rightArr[j] = arr[middle + 1 + j];
+    }
+
+    let i = 0;
+    let j = 0;
+    let k = left;
+
+    const test = arr.slice();
+    const selected = (idx: number) => this.data[this.data.length - 1].data[idx];
+
+    const compare: TMergeResult = {
+      data: test.map((item, idx) => {
         return {
           value: item.value,
           id: item.id,
           rank: idx,
+          location: idx,
           selected: false,
-          sorted: idx === 0,
+          sorted: false,
+          active: leftArr[i] === item || rightArr[j] === item,
+        };
+      }),
+    };
+
+    this.data.push(compare);
+    while (i < lftLength && j < rgtLength) {
+      if (leftArr[i].value <= rightArr[j].value) {
+        const swap: TMergeResult = {
+          data: test.map((item, idx) => {
+            return {
+              value: item.value,
+              id: item.id,
+              rank: idx,
+              location:
+                leftArr[i] === item
+                  ? k
+                  : selected(idx).selected
+                  ? selected(idx).location
+                  : idx,
+              selected: leftArr[i] === item || selected(idx).selected,
+              sorted: false,
+              active: leftArr[i] === item || rightArr[j] === item,
+            };
+          }),
+        };
+
+        this.data.push(swap);
+
+        arr[k] = leftArr[i];
+        i++;
+      } else {
+        const swap: TMergeResult = {
+          data: test.map((item, idx) => {
+            return {
+              value: item.value,
+              id: item.id,
+              rank: idx,
+              location:
+                rightArr[j] === item
+                  ? k
+                  : selected(idx).selected
+                  ? selected(idx).location
+                  : idx,
+              selected: rightArr[j] === item || selected(idx).selected,
+              sorted: false,
+              active: leftArr[i] === item || rightArr[j] === item,
+            };
+          }),
+        };
+
+        this.data.push(swap);
+        arr[k] = rightArr[j];
+        j++;
+      }
+      k++;
+    }
+
+    while (i < lftLength) {
+      const swap: TMergeResult = {
+        data: test.map((item, idx) => {
+          return {
+            value: item.value,
+            id: item.id,
+            rank: idx,
+            location:
+              leftArr[i] === item
+                ? k
+                : selected(idx).selected
+                ? selected(idx).location
+                : idx,
+            selected: leftArr[i] === item || selected(idx).selected,
+            sorted: false,
+            active: leftArr[i] === item || rightArr[j] === item,
+          };
+        }),
+      };
+
+      this.data.push(swap);
+      arr[k] = leftArr[i];
+      i++;
+      k++;
+    }
+
+    while (j < rgtLength) {
+      const swap: TMergeResult = {
+        data: test.map((item, idx) => {
+          return {
+            value: item.value,
+            id: item.id,
+            rank: idx,
+            location:
+              rightArr[j] === item
+                ? k
+                : selected(idx).selected
+                ? selected(idx).location
+                : idx,
+            selected: rightArr[j] === item || selected(idx).selected,
+            sorted: false,
+            active: leftArr[i] === item || rightArr[j] === item,
+          };
+        }),
+      };
+
+      this.data.push(swap);
+      arr[k] = rightArr[j];
+      j++;
+      k++;
+    }
+
+    const res: TMergeResult = {
+      data: arr.map((item, idx) => {
+        return {
+          value: item.value,
+          id: item.id,
+          rank: idx,
+          location: idx,
+          selected: false,
+          sorted: false,
           active: false,
         };
       }),
     };
 
-    this.data.push(setInit);
-
-    for (let i = 0; i < arrCopy.length - 1; i++) {
-      let j = i + 1;
-      const before = {
-        data: arrCopy.map((item, idx) => {
-          return {
-            value: item.value,
-            id: item.id,
-            rank: idx,
-            selected: idx === j,
-            sorted: this.data[this.data.length - 1].data[idx].sorted,
-            active: false,
-          };
-        }),
-      };
-
-      this.data.push(before);
-      while (j > 0) {
-        const compare = {
-          data: arrCopy.map((item, idx) => {
-            return {
-              value: item.value,
-              id: item.id,
-              rank: idx,
-              selected: this.data[this.data.length - 1].data[idx].selected,
-              sorted: this.data[this.data.length - 1].data[idx].sorted,
-              active: idx === j - 1,
-            };
-          }),
-        };
-        this.data.push(compare);
-        if (arrCopy[j].value < arrCopy[j - 1].value) {
-          this.swap(arrCopy, j, j - 1);
-          const swapped = {
-            data: arrCopy.map((item, idx) => {
-              return {
-                value: item.value,
-                id: item.id,
-                rank: idx,
-                selected: idx === j - 1,
-                sorted: idx <= j,
-                active: idx === j,
-              };
-            }),
-          };
-          this.data.push(swapped);
-        } else {
-          break;
-        }
-        j--;
-      }
-      const sorted = {
-        data: arrCopy.map((item, idx) => {
-          return {
-            value: item.value,
-            id: item.id,
-            rank: idx,
-            selected: false,
-            sorted: idx <= i + 1,
-            active: false,
-          };
-        }),
-      };
-      this.data.push(sorted);
-    }
-
-    return this.data;
-  }
-
-  private swap(arr: TUniqueArr[], lft: number, rht: number) {
-    const tmp = arr[lft];
-    arr[lft] = arr[rht];
-    arr[rht] = tmp;
+    this.data.push(res);
   }
 }
 

@@ -37,7 +37,7 @@ const Menu = () => {
         image: LinkImage,
         title: "Merge Sort",
         subtitle: "This is a merge sort",
-        visualizeLink: `${pathname}/visualize-merge-sort`,
+        visualizeLink: `${pathname}/merge`,
         readLink: `${pathname}/visualize-merge-sort`,
       },
     ],

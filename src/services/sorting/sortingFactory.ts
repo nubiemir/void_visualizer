@@ -1,6 +1,7 @@
 import { ISorting } from "../../types";
 import BubbleService from "./bubble.service";
 import InsertionService from "./insertion.service";
+import MergeService from "./merge.service";
 import SelectionService from "./selection.service";
 
 export const sortingFactory = (value: string): ISorting => {
@@ -14,6 +15,9 @@ export const sortingFactory = (value: string): ISorting => {
       break;
     case "insertion":
       service = new InsertionService();
+      break;
+    case "merge":
+      service = new MergeService();
       break;
     default:
       service = new SelectionService();
