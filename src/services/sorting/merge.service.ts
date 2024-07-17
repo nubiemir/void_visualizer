@@ -27,6 +27,7 @@ class MergeService extends BarsService implements ISorting {
     const bar = svg.select("g").attr("fill", "#4682B4").selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
+    console.log(y(-1));
 
     bar
       .data(this.getData[frameIdx].data, (d: any) => d.id)
@@ -50,7 +51,7 @@ class MergeService extends BarsService implements ISorting {
             .attr("x", (d) =>
               d.selected ? (x(d.location) as number) : (x(d.rank) as number)
             )
-            .attr("y", (d) => (d.selected ? y(0) : y(d.value))),
+            .attr("y", (d) => (d.selected ? y(-d.value) : y(d.value + 1))),
         (update) =>
           update.call((update) =>
             update
@@ -66,7 +67,7 @@ class MergeService extends BarsService implements ISorting {
                   ? "#46b48a"
                   : "#4682B4"
               )
-              .attr("y", (d) => (d.selected ? y(50) : y(d.value)))
+              .attr("y", (d) => (d.selected ? y(-1) : y(d.value + 1)))
               .attr("x", (d) =>
                 d.selected ? (x(d.location) as number) : (x(d.rank) as number)
               )
@@ -137,6 +138,22 @@ class MergeService extends BarsService implements ISorting {
       this.merge(arrCopy, left, middle, right);
     };
     mergeSort(0, arrCopy.length - 1);
+    const final: TMergeResult = {
+      data: arrCopy.map((item, idx) => {
+        return {
+          value: item.value,
+          id: item.id,
+          rank: idx,
+          location: idx,
+          selected: false,
+          sorted: true,
+          active: false,
+        };
+      }),
+    };
+
+    this.data.push(final);
+
     return this.data;
   }
 
@@ -162,11 +179,11 @@ class MergeService extends BarsService implements ISorting {
     let j = 0;
     let k = left;
 
-    const test = arr.slice();
+    const tempData = arr.slice();
     const selected = (idx: number) => this.data[this.data.length - 1].data[idx];
 
     const compare: TMergeResult = {
-      data: test.map((item, idx) => {
+      data: tempData.map((item, idx) => {
         return {
           value: item.value,
           id: item.id,
@@ -183,7 +200,7 @@ class MergeService extends BarsService implements ISorting {
     while (i < lftLength && j < rgtLength) {
       if (leftArr[i].value <= rightArr[j].value) {
         const swap: TMergeResult = {
-          data: test.map((item, idx) => {
+          data: tempData.map((item, idx) => {
             return {
               value: item.value,
               id: item.id,
@@ -207,7 +224,7 @@ class MergeService extends BarsService implements ISorting {
         i++;
       } else {
         const swap: TMergeResult = {
-          data: test.map((item, idx) => {
+          data: tempData.map((item, idx) => {
             return {
               value: item.value,
               id: item.id,
@@ -229,12 +246,28 @@ class MergeService extends BarsService implements ISorting {
         arr[k] = rightArr[j];
         j++;
       }
+      const swap: TMergeResult = {
+        data: tempData.map((item, idx) => {
+          return {
+            value: item.value,
+            id: item.id,
+            rank: idx,
+            location: selected(idx).location,
+            selected: selected(idx).selected,
+            sorted: false,
+            active: leftArr[i] === item || rightArr[j] === item,
+          };
+        }),
+      };
+
+      this.data.push(swap);
+
       k++;
     }
 
     while (i < lftLength) {
       const swap: TMergeResult = {
-        data: test.map((item, idx) => {
+        data: tempData.map((item, idx) => {
           return {
             value: item.value,
             id: item.id,
@@ -260,7 +293,7 @@ class MergeService extends BarsService implements ISorting {
 
     while (j < rgtLength) {
       const swap: TMergeResult = {
-        data: test.map((item, idx) => {
+        data: tempData.map((item, idx) => {
           return {
             value: item.value,
             id: item.id,

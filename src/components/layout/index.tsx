@@ -9,7 +9,7 @@ const Layout: ParentComponent = (props) => {
           <Header />
         </div>
       </div>
-      <div class="w-[100vw]">{props.children}</div>
+      <div class="w-[100vw] max-w-[1400px] mx-[auto] ">{props.children}</div>
     </>
   );
 };
