@@ -1,11 +1,9 @@
 import LottieAnimation from "../components/lottie";
 import animationData from "../assets/lotties/404.json";
-import Layout from "../components/layout";
 import BreadCrumbs from "../components/common/BreadCrumbs";
 
 const NotFoundPage = () => {
   return (
-    <Layout>
       <section class="w-[70%] m-auto mt-4">
         <BreadCrumbs />
         <div class="w-[100%] h-[90vh] flex items-center justify-center">
@@ -20,7 +18,6 @@ const NotFoundPage = () => {
           </div>
         </div>
       </section>
-    </Layout>
   );
 };
 
