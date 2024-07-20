@@ -1,9 +1,9 @@
-import Search from "./Search";
+// import Search from "./Search";
 
 const Intro = () => {
   return (
-    <section class="w-[70%] m-auto mt-4">
-      <div class="h-[480px] bg-intro-image bg-cover bg-center bg-no-repeat relative rounded-lg overflow-hidden flex flex-col justify-end">
+    <section class="md:w-[70%] w-[90%] m-auto mt-4 bg-gray-100 rounded-lg overflow-hidden">
+      <div class="h-[480px] bg-intro-image bg-cover bg-center bg-no-repeat relative flex flex-col justify-end">
         <div class="bg-intro-image-color absolute left-0 top-0 w-[100%] h-[100%] z-0"></div>
         <div class="relative z-10  px-10 py-5">
           <div class="flex flex-col gap-4">
@@ -16,9 +16,9 @@ const Intro = () => {
                 interactive visualizations.
               </p>
             </div>
-            <div class="lg:w-[400px] md:w-[300px]">
+            {/* <div class="lg:w-[400px] md:w-[300px]">
               <Search />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

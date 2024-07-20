@@ -7,8 +7,8 @@ interface ILinkProps {
 
 const Link = ({ label, to }: ILinkProps) => {
   return (
-    <li class=" text-sm font-semibold">
-      <A href={to} class="text-bold">
+    <li class="font-semibold">
+      <A href={to} end>
         {label}
       </A>
     </li>
