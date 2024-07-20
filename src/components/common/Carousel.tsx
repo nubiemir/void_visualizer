@@ -1,4 +1,4 @@
-import { ParentComponent, createEffect, createSignal } from "solid-js";
+import { ParentComponent, createSignal } from "solid-js";
 
 interface CarouselProps {
     title?: string;
