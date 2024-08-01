@@ -8,16 +8,16 @@ interface IInputProps {
   helperText?: string;
   error: boolean;
   handleChange: (
-    ev: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }
+    ev: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement },
   ) => void;
 }
 const Input = (props: IInputProps) => {
   return (
     <div>
       <input
-        class="w-[100%] text-black px-2 py-1 rounded-sm outline-none "
+        class="input input-bordered w-full"
         classList={{
-          "outline-red-600": props.error,
+          "input-error": props.error,
         }}
         type={props.type}
         value={props.value}
@@ -28,7 +28,7 @@ const Input = (props: IInputProps) => {
       />
       <Show when={props.helperText}>
         <p
-          class="text-xs mt-2"
+          class="text-xs text-white mt-2"
           classList={{
             "text-red-600": props.error,
           }}

@@ -70,7 +70,7 @@ const Menu = () => {
         <BreadCrumbs />
       </div>
       <div class="mb-4">
-        <h1 class="text-[32px] text-bold font-bold">Algorithms</h1>
+        <h1 class="text-[32px] font-bold">Algorithms</h1>
       </div>
       <MenuList
         title={sort.title}
