@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { ISorting, TSelectionResult, TUniqueArr } from "../../types";
+import { IVisualizer, TSelectionResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
 
-class SelectionService extends BarsService implements ISorting {
+class SelectionService extends BarsService implements IVisualizer {
   private data: TSelectionResult[];
   private timer: any;
   constructor() {
@@ -19,7 +19,7 @@ class SelectionService extends BarsService implements ISorting {
     containerHeight: number,
     container: SVGElement,
     frameIdx: number = 0,
-    speed: number = 1
+    speed: number = 1,
   ): void {
     if (this.getData.length === 0) return;
 
@@ -42,10 +42,10 @@ class SelectionService extends BarsService implements ISorting {
               d.sorted
                 ? "b4a746"
                 : d.selected
-                ? "#b44660"
-                : d.active
-                ? "#46b48a"
-                : "#4682B4"
+                  ? "#b44660"
+                  : d.active
+                    ? "#46b48a"
+                    : "#4682B4",
             ),
         (update) =>
           update.call((update) =>
@@ -57,14 +57,14 @@ class SelectionService extends BarsService implements ISorting {
                 d.sorted
                   ? "#46b48a"
                   : d.selected
-                  ? "#b44660"
-                  : d.active
-                  ? "#b49346"
-                  : "#4682B4"
+                    ? "#b44660"
+                    : d.active
+                      ? "#b49346"
+                      : "#4682B4",
               )
-              .attr("x", (d) => x(d.rank) as number)
+              .attr("x", (d) => x(d.rank) as number),
           ),
-        (exit) => exit.remove()
+        (exit) => exit.remove(),
       );
   }
 
@@ -82,7 +82,7 @@ class SelectionService extends BarsService implements ISorting {
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
     frameIdx: number,
-    speed: number
+    speed: number,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -153,7 +153,7 @@ class SelectionService extends BarsService implements ISorting {
   private populate(
     arr: TUniqueArr[],
     selectedIdx: number | null = null,
-    activIdx: number | null = null
+    activIdx: number | null = null,
   ) {
     const prevData =
       this.data.length > 0 ? this.data[this.data.length - 1].data : null;

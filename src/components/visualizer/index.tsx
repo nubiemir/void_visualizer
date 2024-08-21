@@ -18,7 +18,7 @@ const Visualizer = () => {
         </section>
       }
     >
-      <section class="absolute bg-[#f7fafc] top-0 right-0 left-0 bottom-0 flex items-center animate-appear">
+      <section class="absolute bg-base-300  top-0 right-0 left-0 bottom-0 flex items-center animate-appear">
         <Container />
       </section>
     </Show>

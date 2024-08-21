@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { ISorting, TMergeResult, TUniqueArr } from "../../types";
+import { IVisualizer, TMergeResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
 
-class MergeService extends BarsService implements ISorting {
+class MergeService extends BarsService implements IVisualizer {
   private data: TMergeResult[];
   private timer: any;
   constructor() {
@@ -19,7 +19,7 @@ class MergeService extends BarsService implements ISorting {
     containerHeight: number,
     container: SVGElement,
     frameIdx: number = 0,
-    speed: number = 1
+    speed: number = 1,
   ): void {
     if (this.getData.length === 0) return;
 
@@ -43,13 +43,13 @@ class MergeService extends BarsService implements ISorting {
               d.active
                 ? "#b49346"
                 : d.selected
-                ? "#b44660"
-                : d.sorted
-                ? "#46b48a"
-                : "#4682B4"
+                  ? "#b44660"
+                  : d.sorted
+                    ? "#46b48a"
+                    : "#4682B4",
             )
             .attr("x", (d) =>
-              d.selected ? (x(d.location) as number) : (x(d.rank) as number)
+              d.selected ? (x(d.location) as number) : (x(d.rank) as number),
             )
             .attr("y", (d) => (d.selected ? y(-d.value) : y(d.value + 1))),
         (update) =>
@@ -62,17 +62,17 @@ class MergeService extends BarsService implements ISorting {
                 d.active
                   ? "#b49346"
                   : d.selected
-                  ? "#b44660"
-                  : d.sorted
-                  ? "#46b48a"
-                  : "#4682B4"
+                    ? "#b44660"
+                    : d.sorted
+                      ? "#46b48a"
+                      : "#4682B4",
               )
               .attr("y", (d) => (d.selected ? y(-1) : y(d.value + 1)))
               .attr("x", (d) =>
-                d.selected ? (x(d.location) as number) : (x(d.rank) as number)
-              )
+                d.selected ? (x(d.location) as number) : (x(d.rank) as number),
+              ),
           ),
-        (exit) => exit.remove()
+        (exit) => exit.remove(),
       );
   }
 
@@ -89,7 +89,7 @@ class MergeService extends BarsService implements ISorting {
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
     frameIdx: number,
-    speed: number
+    speed: number,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -161,7 +161,7 @@ class MergeService extends BarsService implements ISorting {
     arr: TUniqueArr[],
     left: number,
     middle: number,
-    right: number
+    right: number,
   ) {
     const lftLength = middle - left + 1;
     const rgtLength = right - middle;
@@ -209,8 +209,8 @@ class MergeService extends BarsService implements ISorting {
                 leftArr[i] === item
                   ? k
                   : selected(idx).selected
-                  ? selected(idx).location
-                  : idx,
+                    ? selected(idx).location
+                    : idx,
               selected: leftArr[i] === item || selected(idx).selected,
               sorted: false,
               active: leftArr[i] === item || rightArr[j] === item,
@@ -233,8 +233,8 @@ class MergeService extends BarsService implements ISorting {
                 rightArr[j] === item
                   ? k
                   : selected(idx).selected
-                  ? selected(idx).location
-                  : idx,
+                    ? selected(idx).location
+                    : idx,
               selected: rightArr[j] === item || selected(idx).selected,
               sorted: false,
               active: leftArr[i] === item || rightArr[j] === item,
@@ -276,8 +276,8 @@ class MergeService extends BarsService implements ISorting {
               leftArr[i] === item
                 ? k
                 : selected(idx).selected
-                ? selected(idx).location
-                : idx,
+                  ? selected(idx).location
+                  : idx,
             selected: leftArr[i] === item || selected(idx).selected,
             sorted: false,
             active: leftArr[i] === item || rightArr[j] === item,
@@ -302,8 +302,8 @@ class MergeService extends BarsService implements ISorting {
               rightArr[j] === item
                 ? k
                 : selected(idx).selected
-                ? selected(idx).location
-                : idx,
+                  ? selected(idx).location
+                  : idx,
             selected: rightArr[j] === item || selected(idx).selected,
             sorted: false,
             active: leftArr[i] === item || rightArr[j] === item,

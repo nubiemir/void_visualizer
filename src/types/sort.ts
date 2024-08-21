@@ -35,13 +35,13 @@ export type TMergeResult = {
   }[];
 };
 
-export interface ISorting {
+export interface IVisualizer {
   draw(
     containerWidth: number,
     containerHeight: number,
     container: SVGElement,
     frameIdx: number,
-    speed: number
+    speed: number,
   ): void;
 
   animate(
@@ -51,7 +51,7 @@ export interface ISorting {
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
     frameIdx: number,
-    speed: number
+    speed: number,
   ): void;
   pauseAnimation(): void;
   createAnimationFrames(arr: TUniqueArr[]): any[];

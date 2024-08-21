@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { ISorting, TResult, TUniqueArr } from "../../types";
+import { IVisualizer, TResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
 
 type TPrev = {
@@ -10,7 +10,7 @@ type TPrev = {
   id: number;
 };
 
-class BubbleService extends BarsService implements ISorting {
+class BubbleService extends BarsService implements IVisualizer {
   private data: TResult[];
   private timer: any;
   constructor() {
@@ -27,7 +27,7 @@ class BubbleService extends BarsService implements ISorting {
     containerHeight: number,
     container: SVGElement,
     frameIdx: number = 0,
-    speed: number = 1
+    speed: number = 1,
   ): void {
     if (this.getData.length === 0) return;
 
@@ -47,7 +47,7 @@ class BubbleService extends BarsService implements ISorting {
             .attr("height", (d) => y(0) - y(d.value))
             .attr("width", (_) => x.bandwidth())
             .attr("fill", (d) =>
-              d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
+              d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4",
             ),
         (update) =>
           update.call((update) =>
@@ -56,11 +56,11 @@ class BubbleService extends BarsService implements ISorting {
               .duration(200 / speed)
               .ease(d3.easePolyInOut)
               .attr("fill", (d) =>
-                d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4"
+                d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4",
               )
-              .attr("x", (d) => x(d.rank) as number)
+              .attr("x", (d) => x(d.rank) as number),
           ),
-        (exit) => exit.remove()
+        (exit) => exit.remove(),
       );
   }
 
@@ -78,7 +78,7 @@ class BubbleService extends BarsService implements ISorting {
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
     frameIdx: number,
-    speed: number
+    speed: number,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -159,7 +159,7 @@ class BubbleService extends BarsService implements ISorting {
     arrCopy: TUniqueArr[],
     prevData: TPrev[],
     j: number,
-    i: number
+    i: number,
   ) {
     const tempResult = {
       data: arrCopy.map((itm, idx) => {

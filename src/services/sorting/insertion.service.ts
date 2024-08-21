@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { ISorting, TSelectionResult, TUniqueArr } from "../../types";
+import { IVisualizer, TSelectionResult, TUniqueArr } from "../../types";
 import BarsService from "./bars.service";
 
-class InsertionService extends BarsService implements ISorting {
+class InsertionService extends BarsService implements IVisualizer {
   private data: TSelectionResult[];
   private timer: any;
   constructor() {
@@ -19,7 +19,7 @@ class InsertionService extends BarsService implements ISorting {
     containerHeight: number,
     container: SVGElement,
     frameIdx: number = 0,
-    speed: number = 1
+    speed: number = 1,
   ): void {
     if (this.getData.length === 0) return;
 
@@ -42,10 +42,10 @@ class InsertionService extends BarsService implements ISorting {
               d.active
                 ? "#b49346"
                 : d.selected
-                ? "#b44660"
-                : d.sorted
-                ? "#46b48a"
-                : "#4682B4"
+                  ? "#b44660"
+                  : d.sorted
+                    ? "#46b48a"
+                    : "#4682B4",
             )
             .attr("y", (d) => (d.selected ? y(0) : y(d.value))),
         (update) =>
@@ -58,15 +58,15 @@ class InsertionService extends BarsService implements ISorting {
                 d.active
                   ? "#b49346"
                   : d.selected
-                  ? "#b44660"
-                  : d.sorted
-                  ? "#46b48a"
-                  : "#4682B4"
+                    ? "#b44660"
+                    : d.sorted
+                      ? "#46b48a"
+                      : "#4682B4",
               )
               .attr("x", (d) => x(d.rank) as number)
-              .attr("y", (d) => (d.selected ? y(0) : y(d.value)))
+              .attr("y", (d) => (d.selected ? y(0) : y(d.value))),
           ),
-        (exit) => exit.remove()
+        (exit) => exit.remove(),
       );
   }
 
@@ -84,7 +84,7 @@ class InsertionService extends BarsService implements ISorting {
     handleFrameChange: (frame: number) => void,
     handleAnimationFinished: () => void,
     frameIdx: number,
-    speed: number
+    speed: number,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
