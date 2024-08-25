@@ -15,6 +15,10 @@ export const routes = [
     component: lazy(() => import("../src/pages/Visualizer/Sorting")),
   },
   {
+    path: "/read/bubble",
+    component: lazy(() => import("../src/pages/Reader/Sorting/bubble.tsx")),
+  },
+  {
     path: "/*all",
     component: lazy(() => import("../src/pages/404")),
   },
