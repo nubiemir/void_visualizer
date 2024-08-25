@@ -15,11 +15,11 @@ const Container = () => {
 
   return (
     <div
-      class="w-[100%] p-4  min-h-[400px] min-w-[450px]"
+      class="w-[100%] min-h-[400px] min-w-[450px]"
       onmouseover={handleMouseOver}
       onmouseleave={handleMouseOut}
     >
-      <div class="p-5 relative h-[100%] max-h-[100%] ">
+      <div class="relative h-[100%] max-h-[100%]">
         <svg
           ref={(ele) => (svg = ele)}
           class="w-[100%]  min-h-[400px]"

@@ -8,7 +8,7 @@ export const menuList: MenuList[] = [
   {
     title: "Bubble Sort",
     visualizeLink: "/algorithm/bubble",
-    readLink: "/algorithm/bubble",
+    readLink: "/read/bubble",
   },
   {
     title: "Selection Sort",
