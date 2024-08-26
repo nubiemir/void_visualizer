@@ -26,6 +26,7 @@ type TPreviewStore = {
   group: SVGGElement | undefined;
   data: TUniqueArr[];
   frames: TResult[] | TSelectionResult[];
+  transform: any;
 };
 
 type TPreviewContext = {
@@ -71,6 +72,7 @@ export const PreviewProvider: ParentComponent = (props) => {
       { value: 55, id: 4 },
     ],
     frames: [],
+    transform: undefined,
   });
 
   let timer: number | null;
@@ -89,18 +91,23 @@ export const PreviewProvider: ParentComponent = (props) => {
         produce((state) => {
           state.containerWidth = previewStore.container?.clientWidth || 0;
           state.containerHeight = previewStore.container?.clientHeight || 0;
-        })
+        }),
       );
+      service.zoom(previewStore.container, setTransform);
       drawObjects();
     }
   });
+
+  const setTransform = (data: any) => {
+    setPreviewStore("transform", data);
+  };
 
   const setContainerRefs = (container: SVGElement, group: SVGGElement) => {
     setPreviewStore(
       produce((state) => {
         state.container = container;
         state.group = group;
-      })
+      }),
     );
   };
 
@@ -108,7 +115,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     setPreviewStore(
       produce((state) => {
         state.slider = slider;
-      })
+      }),
     );
   };
 
@@ -121,14 +128,13 @@ export const PreviewProvider: ParentComponent = (props) => {
     });
     const frames = service.createAnimationFrames(data);
 
-
     setPreviewStore(
       produce((state) => {
         state.data = data;
         state.frames = frames;
         state.frameIdx = 0;
         state.isDone = false;
-      })
+      }),
     );
     previewStore.group?.replaceChildren();
     handlePauseAnimation();
@@ -168,7 +174,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         produce((state) => {
           state.frameIdx = positionClickIdx;
           state.isDone = false;
-        })
+        }),
       );
       drawObjects();
       return;
@@ -217,7 +223,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         produce((state) => {
           state.isDone = false;
           state.isPaused = true;
-        })
+        }),
       );
     }
     if (!previewStore.isPaused && previewStore.isAnimating) {
@@ -237,7 +243,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         state.isPaused = false;
         state.isDone = false;
         state.isAnimating = true;
-      })
+      }),
     );
 
     if (previewStore.container)
@@ -248,7 +254,8 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleFrameChange,
         handleAnimationFinished,
         previewStore.frameIdx,
-        previewStore.speed
+        previewStore.speed,
+        previewStore.transform,
       );
   };
 
@@ -262,7 +269,7 @@ export const PreviewProvider: ParentComponent = (props) => {
       produce((state) => {
         state.isPaused = true;
         state.isAnimating = false;
-      })
+      }),
     );
   };
 
@@ -278,7 +285,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         state.isDone = true;
         state.isPaused = false;
         state.isAnimating = false;
-      })
+      }),
     );
   };
 
@@ -289,7 +296,8 @@ export const PreviewProvider: ParentComponent = (props) => {
         previewStore.containerHeight,
         previewStore.container,
         previewStore.frameIdx,
-        previewStore.speed
+        previewStore.speed,
+        previewStore.transform,
       );
     }
   };
@@ -302,17 +310,19 @@ export const PreviewProvider: ParentComponent = (props) => {
     event.stopPropagation();
     setPreviewStore("showSetting", (prev) => !prev);
   };
+
   const handleMouseOver = () => {
     if (timer !== null && timer !== undefined) clearTimeout(timer);
     setPreviewStore("showTimeLine", true);
   };
+
   const handleMouseOut = () => {
     timer = setTimeout(() => {
       setPreviewStore(
         produce((state) => {
           state.showSetting = false;
           state.showTimeLine = false;
-        })
+        }),
       );
     }, 2000);
   };
@@ -331,7 +341,8 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleFrameChange,
         handleAnimationFinished,
         previewStore.frameIdx,
-        previewStore.speed
+        previewStore.speed,
+        previewStore.transform,
       );
   };
 
@@ -340,7 +351,7 @@ export const PreviewProvider: ParentComponent = (props) => {
       produce((state) => {
         state.containerWidth = previewStore.container?.clientWidth || 0;
         state.containerHeight = previewStore.container?.clientHeight || 0;
-      })
+      }),
     );
     if (previewStore.isAnimating && !previewStore.isPaused) {
       handlePauseAnimation();

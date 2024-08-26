@@ -36,12 +36,15 @@ export type TMergeResult = {
 };
 
 export interface IVisualizer {
+  zoom(container: Element | undefined, setTransform: (data: any) => void): void;
+
   draw(
     containerWidth: number,
     containerHeight: number,
     container: SVGElement,
     frameIdx: number,
     speed: number,
+    transform: any,
   ): void;
 
   animate(
@@ -52,6 +55,7 @@ export interface IVisualizer {
     handleAnimationFinished: () => void,
     frameIdx: number,
     speed: number,
+    transform: any,
   ): void;
   pauseAnimation(): void;
   createAnimationFrames(arr: TUniqueArr[]): any[];
