@@ -1,9 +1,6 @@
 import { A } from "@solidjs/router";
 import { Show } from "solid-js";
 
-import VisualizeIcon from "../../assets/graph.svg";
-import ReadIcon from "../../assets/book.svg";
-
 interface ILinkProps {
   image: string;
   title: string;
