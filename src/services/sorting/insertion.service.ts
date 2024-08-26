@@ -14,12 +14,21 @@ class InsertionService extends BarsService implements IVisualizer {
     return this.data;
   }
 
+  zoom(container: Element, setTransform: (data: any) => void): void {
+    const svg = d3.select(container);
+    const zoomBehavior = d3.zoom().on("zoom", (event) => {
+      setTransform(event.transform);
+    });
+    svg.call(zoomBehavior);
+  }
+
   draw(
     containerWidth: number,
     containerHeight: number,
     container: SVGElement,
     frameIdx: number = 0,
     speed: number = 1,
+    transform: any,
   ): void {
     if (this.getData.length === 0) return;
 
@@ -27,6 +36,8 @@ class InsertionService extends BarsService implements IVisualizer {
     const bar = svg.select("g").attr("fill", "#4682B4").selectAll("rect");
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
+
+    svg.select("g").attr("transform", transform);
 
     bar
       .data(this.getData[frameIdx].data, (d: any) => d.id)
