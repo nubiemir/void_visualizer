@@ -37,14 +37,20 @@ module.exports = {
         light: {
           ...require("daisyui/src/theming/themes")["light"],
           ".border-base": {
-            "background-color": "oklch(21.1484% 0.01165 254.087939)",
+            "border-color": "oklch(21.1484% 0.01165 254.087939)",
+          },
+          ".bg-card": {
+            "background-color": "#1D232A",
           },
         },
 
         dark: {
           ...require("daisyui/src/theming/themes")["dark"],
           ".border-base": {
-            "background-color": "oklch(92.4169% 0.00108 197.137559)",
+            "border-color": "oklch(92.4169% 0.00108 197.137559)",
+          },
+          ".bg-card": {
+            "background-color": "#E5E6E6",
           },
         },
       },

@@ -1,5 +1,3 @@
-// import Search from "./Search";
-
 const Intro = () => {
   return (
     <section class="md:w-[70%] w-[90%] m-auto mt-4 bg-gray-100 rounded-lg overflow-hidden">
@@ -16,9 +14,6 @@ const Intro = () => {
                 interactive visualizations.
               </p>
             </div>
-            {/* <div class="lg:w-[400px] md:w-[300px]">
-              <Search />
-            </div> */}
           </div>
         </div>
       </div>
