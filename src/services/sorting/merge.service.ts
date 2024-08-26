@@ -100,6 +100,7 @@ class MergeService extends BarsService implements IVisualizer {
     handleAnimationFinished: () => void,
     frameIdx: number,
     speed: number,
+    transform: any,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -109,7 +110,14 @@ class MergeService extends BarsService implements IVisualizer {
         return;
       }
 
-      this.draw(containerWidth, containerHeight, container, i, speed);
+      this.draw(
+        containerWidth,
+        containerHeight,
+        container,
+        i,
+        speed,
+        transform,
+      );
       i++;
       handleFrameChange(i);
     }, 800 / speed);

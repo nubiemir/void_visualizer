@@ -255,6 +255,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleAnimationFinished,
         previewStore.frameIdx,
         previewStore.speed,
+        previewStore.transform,
       );
   };
 
@@ -341,6 +342,7 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleAnimationFinished,
         previewStore.frameIdx,
         previewStore.speed,
+        previewStore.transform,
       );
   };
 

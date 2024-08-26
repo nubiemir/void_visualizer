@@ -25,7 +25,6 @@ class BubbleService extends BarsService implements IVisualizer {
   zoom(container: Element, setTransform: (data: any) => void): void {
     const svg = d3.select(container);
     const zoomBehavior = d3.zoom().on("zoom", (event) => {
-      console.log(svg);
       setTransform(event.transform);
     });
     svg.call(zoomBehavior);
@@ -91,6 +90,7 @@ class BubbleService extends BarsService implements IVisualizer {
     handleAnimationFinished: () => void,
     frameIdx: number,
     speed: number,
+    transform: any,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -100,7 +100,14 @@ class BubbleService extends BarsService implements IVisualizer {
         return;
       }
 
-      this.draw(containerWidth, containerHeight, container, i, speed);
+      this.draw(
+        containerWidth,
+        containerHeight,
+        container,
+        i,
+        speed,
+        transform,
+      );
       i++;
       handleFrameChange(i);
     }, 500 / speed);

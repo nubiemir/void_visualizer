@@ -55,6 +55,7 @@ export interface IVisualizer {
     handleAnimationFinished: () => void,
     frameIdx: number,
     speed: number,
+    transform: any,
   ): void;
   pauseAnimation(): void;
   createAnimationFrames(arr: TUniqueArr[]): any[];
