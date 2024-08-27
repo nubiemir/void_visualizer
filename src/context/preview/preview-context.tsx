@@ -7,7 +7,7 @@ import {
   useContext,
 } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { sortingFactory } from "../../services/sorting/sortingFactory";
+import { visualizerFactory } from "../../services/sorting/visualizerFactory";
 import { TResult, TSelectionResult, TUniqueArr } from "../../types";
 
 type TPreviewStore = {
@@ -78,7 +78,7 @@ export const PreviewProvider: ParentComponent = (props) => {
   let timer: number | null;
 
   const { id } = useParams();
-  const service = sortingFactory(id);
+  const service = visualizerFactory(id);
 
   onMount(() => {
     const data = service.createAnimationFrames(previewStore.data);

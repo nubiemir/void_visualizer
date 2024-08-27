@@ -2,15 +2,7 @@ import * as d3 from "d3";
 import { IVisualizer, TResult, TUniqueArr } from "../../types";
 import BarsService from "../bars.service";
 
-type TPrev = {
-  rank: number;
-  value: number;
-  compare: boolean;
-  sorted: boolean;
-  id: number;
-};
-
-class BubbleService extends BarsService implements IVisualizer {
+class LinearService extends BarsService implements IVisualizer {
   private data: TResult[];
   private timer: any;
   constructor() {
@@ -133,69 +125,8 @@ class BubbleService extends BarsService implements IVisualizer {
     };
 
     this.data.push(init);
-    let swapped = false;
-    for (let i = 0; i < arrCopy.length; i++) {
-      swapped = false;
-      const prevData = this.data[this.data.length - 1].data;
-      for (let j = 0; j < arrCopy.length - i - 1; j++) {
-        const before = this.populate(arrCopy, prevData, j, i);
-        this.data.push(before);
-        if (arrCopy[j].value > arrCopy[j + 1].value) {
-          this.swap(arrCopy, j, j + 1);
-          const after = this.populate(arrCopy, prevData, j, i);
-          this.data.push(after);
-          swapped = true;
-        }
-      }
-      this.data[this.data.length - 1].data[arrCopy.length - i - 1].sorted =
-        true;
-      if (!swapped) break;
-    }
-
-    const final = {
-      data: arrCopy.map((itm, idx) => {
-        return {
-          rank: idx,
-          value: itm.value,
-          id: itm.id,
-          sorted: true,
-          compare: false,
-        };
-      }),
-    };
-
-    this.data.push(final);
     return this.data;
-  }
-
-  private swap(arr: TUniqueArr[], lft: number, rht: number) {
-    const tmp = arr[lft];
-    arr[lft] = arr[rht];
-    arr[rht] = tmp;
-  }
-
-  private populate(
-    arrCopy: TUniqueArr[],
-    prevData: TPrev[],
-    j: number,
-    i: number,
-  ) {
-    const tempResult = {
-      data: arrCopy.map((itm, idx) => {
-        return {
-          rank: idx,
-          value: itm.value,
-          id: itm.id,
-          sorted: prevData[idx].sorted,
-          compare:
-            ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
-            false,
-        };
-      }),
-    };
-
-    return tempResult;
   }
 }
 
-export default BubbleService;
+export default LinearService;

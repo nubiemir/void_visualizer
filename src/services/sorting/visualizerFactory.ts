@@ -1,10 +1,11 @@
 import { IVisualizer } from "../../types";
+import LinearService from "../searching/linear.service";
 import BubbleService from "./bubble.service";
 import InsertionService from "./insertion.service";
 import MergeService from "./merge.service";
 import SelectionService from "./selection.service";
 
-export const sortingFactory = (value: string): IVisualizer => {
+export const visualizerFactory = (value: string): IVisualizer => {
   let service;
   switch (value) {
     case "bubble":
@@ -18,6 +19,9 @@ export const sortingFactory = (value: string): IVisualizer => {
       break;
     case "merge":
       service = new MergeService();
+      break;
+    case "linear":
+      service = new LinearService();
       break;
     default:
       service = new SelectionService();

@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { IVisualizer, TSelectionResult, TUniqueArr } from "../../types";
-import BarsService from "./bars.service";
+import BarsService from "../bars.service";
 
 class SelectionService extends BarsService implements IVisualizer {
   private data: TSelectionResult[];

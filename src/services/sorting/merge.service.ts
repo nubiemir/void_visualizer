@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { IVisualizer, TMergeResult, TUniqueArr } from "../../types";
-import BarsService from "./bars.service";
+import BarsService from "../bars.service";
 
 class MergeService extends BarsService implements IVisualizer {
   private data: TMergeResult[];
