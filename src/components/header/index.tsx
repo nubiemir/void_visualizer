@@ -5,7 +5,7 @@ import ThemeController from "./ThemeController";
 
 const Header = () => {
   return (
-    <header class="navbar ">
+    <header class="navbar">
       <div class="navbar-start">
         <div>
           <A href="/">

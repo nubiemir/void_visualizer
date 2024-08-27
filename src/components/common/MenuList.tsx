@@ -6,7 +6,6 @@ type Menu = {
   title: string;
   subtitle: string;
   visualizeLink: string;
-  readLink: string;
 };
 
 interface IMenuListProps {
@@ -39,7 +38,6 @@ const MenuList = ({
             title={item.title}
             subtitle={item.subtitle}
             visualizeLink={item.visualizeLink}
-            readLink={item.readLink}
           />
         )}
       </For>

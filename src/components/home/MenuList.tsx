@@ -14,8 +14,8 @@ const MenuList = () => {
               title={item.title}
               image={testImage}
               visualizeLink={item.visualizeLink}
-              readLink={item.readLink}
               category={item.category}
+              description={item.description}
             />
           )}
         </For>

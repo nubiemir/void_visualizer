@@ -17,28 +17,24 @@ const Menu = () => {
         title: "Bubble Sort",
         subtitle: "This is a bubble sort",
         visualizeLink: `${pathname}/bubble`,
-        readLink: `${pathname}/read-bubble`,
       },
       {
         image: LinkImage,
         title: "Selection Sort",
         subtitle: "This is an selection sort",
         visualizeLink: `${pathname}/selection`,
-        readLink: `${pathname}/read-selection`,
       },
       {
         image: LinkImage,
         title: "Insertion Sort",
         subtitle: "This is an insertion sort",
         visualizeLink: `${pathname}/insertion`,
-        readLink: `${pathname}/visualize-insertion-sort`,
       },
       {
         image: LinkImage,
         title: "Merge Sort",
         subtitle: "This is a merge sort",
         visualizeLink: `${pathname}/merge`,
-        readLink: `${pathname}/visualize-merge-sort`,
       },
     ],
   };
@@ -53,19 +49,17 @@ const Menu = () => {
         title: "Linear Search",
         subtitle: "This is a linear search",
         visualizeLink: `http://localhost:5173${pathname}/linear-search`,
-        readLink: `http://localhost:5173${pathname}/linear-search`,
       },
       {
         image: LinkImage,
         title: "Bineary Search",
         subtitle: "This is a bineary search",
         visualizeLink: `http://localhost:5173${pathname}/bineary-search`,
-        readLink: `http://localhost:5173${pathname}/bineary-search`,
       },
     ],
   };
   return (
-    <section class="w-[70%] m-auto mt-4">
+    <section class="w-[95%] md:w-[70%] m-auto mt-4">
       <div class="mb-4">
         <BreadCrumbs />
       </div>
