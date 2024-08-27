@@ -1,13 +1,15 @@
-import { onMount, Show } from "solid-js";
+import { children, onMount, ParentComponent, Show } from "solid-js";
 import { usePreviewStore } from "../../context";
 import TimeLine from "./timeline/TimeLine";
 
-const Container = () => {
+const Container: ParentComponent = (props) => {
   let svg!: SVGElement;
   let g!: SVGGElement;
 
   let { setContainerRefs, handleMouseOut, handleMouseOver, previewStore } =
     usePreviewStore();
+
+  const resolvedChildren = children(() => props.children);
 
   onMount(() => {
     setContainerRefs(svg, g);
@@ -30,7 +32,7 @@ const Container = () => {
         <div class="w-[100%] absolute bottom-4 left-[50%] translate-x-[-50%] px-5">
           <div class="w-[100%]">
             <Show when={previewStore.showTimeLine}>
-              <TimeLine />
+              <TimeLine>{resolvedChildren()}</TimeLine>
             </Show>
           </div>
         </div>

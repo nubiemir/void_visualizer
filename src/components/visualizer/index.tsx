@@ -1,10 +1,12 @@
-import { Show } from "solid-js";
+import { ParentComponent, Show, children } from "solid-js";
 import { usePreviewStore } from "../../context";
 import BreadCrumbs from "../common/BreadCrumbs";
 import Container from "./Container";
 
-const Visualizer = () => {
+const Visualizer: ParentComponent = (props) => {
   const { previewStore } = usePreviewStore();
+
+  const resolvedChildren = children(() => props.children);
 
   return (
     <Show
@@ -14,12 +16,12 @@ const Visualizer = () => {
           <div class="mb-4 flex">
             <BreadCrumbs />
           </div>
-          <Container />
+          <Container>{props.children}</Container>
         </section>
       }
     >
       <section class="absolute bg-base-300  top-0 right-0 left-0 bottom-0 flex items-center animate-appear">
-        <Container />
+        <Container>{resolvedChildren()}</Container>
       </section>
     </Show>
   );

@@ -1,4 +1,4 @@
-import { onMount, Show } from "solid-js";
+import { children, onMount, ParentComponent, Show } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
 import CollapseIcon from "../../../assets/compress-solid.svg";
 import ExpandIcon from "../../../assets/expand-solid.svg";
@@ -12,7 +12,7 @@ import Setting from "../setting";
 import Media from "./Media";
 import "./timeline.css";
 
-const TimeLine = () => {
+const TimeLine: ParentComponent = (props) => {
   const {
     handleExpandToggle,
     handleClickNext,
@@ -27,9 +27,12 @@ const TimeLine = () => {
   } = usePreviewStore();
   let slider!: HTMLDivElement;
 
+  const resolvedChildren = children(() => props.children);
+
   onMount(() => {
     setSliderRef(slider);
   });
+
   const timeline = () =>
     (previewStore.frameIdx / (previewStore.frames.length - 1) || 0) * 100;
 
@@ -126,7 +129,7 @@ const TimeLine = () => {
           <div class="relative">
             <div class="absolute left-[100%] top-[100%] translate-y-[-115%] translate-x-[-100%]">
               <Show when={previewStore.showSetting}>
-                <Setting />
+                <Setting>{resolvedChildren()}</Setting>
               </Show>
             </div>
             <Media
