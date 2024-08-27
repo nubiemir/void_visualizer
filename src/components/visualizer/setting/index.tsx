@@ -1,4 +1,3 @@
-import { createStore } from "solid-js/store";
 import CreateIcon from "../../../assets/circle-plus-solid.svg";
 import ClockIcon from "../../../assets/clock-solid.svg";
 import { usePreviewStore } from "../../../context";
