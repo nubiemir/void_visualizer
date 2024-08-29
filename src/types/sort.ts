@@ -23,6 +23,7 @@ export type TSelectionResult = {
     id: number;
   }[];
 };
+
 export type TMergeResult = {
   data: {
     rank: number;
@@ -35,8 +36,20 @@ export type TMergeResult = {
   }[];
 };
 
+export type TSearchResult = {
+  data: {
+    rank: number;
+    value: number;
+    notElement: boolean;
+    found: boolean;
+    id: number;
+  }[];
+};
+
 export interface IVisualizer {
   zoom(container: Element | undefined, setTransform: (data: any) => void): void;
+
+  initData(): TUniqueArr[];
 
   draw(
     containerWidth: number,

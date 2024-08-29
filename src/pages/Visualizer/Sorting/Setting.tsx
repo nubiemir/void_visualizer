@@ -6,18 +6,19 @@ import TabPanels from "../../../components/tab/TabPanels";
 import { usePreviewStore } from "../../../context";
 import { TOptions } from "../../../components/visualizer/setting";
 import CheckBox from "../../../components/visualizer/setting/CheckBox";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import TabContext from "../../../context/tab/tab-context";
+import { onMount } from "solid-js";
 
 const SortingSetting = () => {
   const { setData, previewStore } = usePreviewStore();
   const [store, setStore] = createStore({
     basic: {
-      value: previewStore.data.map((item) => item.value).join(","),
+      value: "",
       error: false,
     },
     advanced: {
-      value: "5",
+      value: "",
       error: false,
       options: {
         manyDuplicates: false,
@@ -25,6 +26,17 @@ const SortingSetting = () => {
         sortedDescending: false,
       } as TOptions,
     },
+  });
+
+  onMount(() => {
+    setStore(
+      produce((state) => {
+        state.basic.value = previewStore.data
+          .map((item) => item.value)
+          .join(",");
+        state.advanced.value = "5";
+      }),
+    );
   });
 
   const handleChange = (

@@ -13,6 +13,7 @@ interface IMenuListProps {
   introDescription: string;
   title: string;
   list: Menu[];
+  id?: string;
 }
 
 const MenuList = ({
@@ -20,9 +21,10 @@ const MenuList = ({
   list,
   introTitle,
   introDescription,
+  id,
 }: IMenuListProps) => {
   return (
-    <div class="mb-10">
+    <div class="mb-10" id={id}>
       <div class="mb-6">
         <h3 class="font-bold">{introTitle}</h3>
         <p>{introDescription}</p>

@@ -14,6 +14,16 @@ class SelectionService extends BarsService implements IVisualizer {
     return this.data;
   }
 
+  initData(): TUniqueArr[] {
+    return [
+      { value: 10, id: 0 },
+      { value: 40, id: 1 },
+      { value: 23, id: 2 },
+      { value: 15, id: 3 },
+      { value: 55, id: 4 },
+    ];
+  }
+
   zoom(container: Element, setTransform: (data: any) => void): void {
     const svg = d3.select(container);
     const zoomBehavior = d3.zoom().on("zoom", (event) => {

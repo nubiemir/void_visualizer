@@ -64,13 +64,7 @@ export const PreviewProvider: ParentComponent = (props) => {
     container: undefined,
     slider: undefined,
     group: undefined,
-    data: [
-      { value: 10, id: 0 },
-      { value: 40, id: 1 },
-      { value: 23, id: 2 },
-      { value: 15, id: 3 },
-      { value: 55, id: 4 },
-    ],
+    data: [],
     frames: [],
     transform: undefined,
   });
@@ -81,8 +75,13 @@ export const PreviewProvider: ParentComponent = (props) => {
   const service = visualizerFactory(id);
 
   onMount(() => {
-    const data = service.createAnimationFrames(previewStore.data);
-    setPreviewStore("frames", data);
+    const initialData = service.initData();
+    setPreviewStore(
+      produce((state) => {
+        state.frames = service.createAnimationFrames(initialData);
+        state.data = initialData;
+      }),
+    );
   });
 
   createEffect(() => {

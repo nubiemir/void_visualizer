@@ -1,17 +1,9 @@
 import * as d3 from "d3";
-import { IVisualizer, TResult, TUniqueArr } from "../../types";
+import { IVisualizer, TSearchResult, TUniqueArr } from "../../types";
 import BarsService from "../bars.service";
 
-type TPrev = {
-  rank: number;
-  value: number;
-  compare: boolean;
-  sorted: boolean;
-  id: number;
-};
-
-class BubbleService extends BarsService implements IVisualizer {
-  private data: TResult[];
+class BinearyService extends BarsService implements IVisualizer {
+  private data: TSearchResult[];
   private timer: any;
   constructor() {
     super();
@@ -24,11 +16,12 @@ class BubbleService extends BarsService implements IVisualizer {
 
   initData(): TUniqueArr[] {
     return [
-      { value: 10, id: 0 },
-      { value: 40, id: 1 },
-      { value: 23, id: 2 },
-      { value: 15, id: 3 },
-      { value: 55, id: 4 },
+      { value: 15, id: 0 },
+      { value: 10, id: 1 },
+      { value: 15, id: 4 },
+      { value: 23, id: 3 },
+      { value: 40, id: 2 },
+      { value: 55, id: 5 },
     ];
   }
 
@@ -67,18 +60,24 @@ class BubbleService extends BarsService implements IVisualizer {
             .attr("y", (d) => y(d.value) as number)
             .attr("height", (d) => y(0) - y(d.value))
             .attr("width", (_) => x.bandwidth())
-            .attr("fill", (d) =>
-              d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4",
-            ),
+            .attr("fill", (d) => (d.id === 0 ? "none" : "#4682B4"))
+            .attr("stroke", (d) =>
+              d.found ? "#46b48a" : d.id === 0 ? "#b44660" : "none",
+            )
+            .attr("opacity", (d) => (d.notElement && d.id !== 0 ? 0.2 : 1))
+            .attr("stroke-width", (d) => (d.id === 0 ? 5 : 0)),
+
         (update) =>
           update.call((update) =>
             update
               .transition()
               .duration(200 / speed)
               .ease(d3.easePolyInOut)
-              .attr("fill", (d) =>
-                d.compare ? "#b44660" : d.sorted ? "#46b48a" : "#4682B4",
+              .attr("fill", (d) => (d.id === 0 ? "none" : "#4682B4"))
+              .attr("stroke", (d) =>
+                d.found ? "#46b48a" : d.id === 0 ? "#b44660" : "none",
               )
+              .attr("opacity", (d) => (d.notElement && d.id !== 0 ? 0.3 : 1))
               .attr("x", (d) => x(d.rank) as number),
           ),
         (exit) => exit.remove(),
@@ -135,77 +134,72 @@ class BubbleService extends BarsService implements IVisualizer {
         return {
           rank: idx,
           value: itm.value,
-          compare: false,
-          sorted: false,
+          notElement: false,
+          found: false,
           id: itm.id,
         };
       }),
     };
-
     this.data.push(init);
-    let swapped = false;
-    for (let i = 0; i < arrCopy.length; i++) {
-      swapped = false;
-      const prevData = this.data[this.data.length - 1].data;
-      for (let j = 0; j < arrCopy.length - i - 1; j++) {
-        const before = this.populate(arrCopy, prevData, j, i);
-        this.data.push(before);
-        if (arrCopy[j].value > arrCopy[j + 1].value) {
-          this.swap(arrCopy, j, j + 1);
-          const after = this.populate(arrCopy, prevData, j, i);
-          this.data.push(after);
-          swapped = true;
-        }
+
+    const data = arr.slice(1);
+    let low = 0;
+    let high = data.length - 1;
+    let mid: number;
+    let x = arr[0].value;
+
+    while (high >= low) {
+      mid = low + Math.floor((high - low) / 2);
+      const iteration = {
+        data: arrCopy.map((itm, idx) => {
+          return {
+            ...itm,
+            rank: itm.id === 0 ? mid + 1 : idx,
+            notElement: this.data[this.data.length - 1].data[idx].notElement,
+            found: false,
+            id: itm.id,
+          };
+        }),
+      };
+
+      this.data.push(iteration);
+      if (data[mid].value == x) {
+        const iteration = {
+          data: arrCopy.map((itm, idx) => {
+            return {
+              ...itm,
+              rank: itm.id === 0 ? mid + 1 : idx,
+              notElement: !(idx - 1 >= low && idx - 1 <= high) && idx != 0,
+              found: idx === 0,
+              id: itm.id,
+            };
+          }),
+        };
+        this.data.push(iteration);
+        break;
       }
-      this.data[this.data.length - 1].data[arrCopy.length - i - 1].sorted =
-        true;
-      if (!swapped) break;
+      if (data[mid].value > x) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+      {
+        const iteration = {
+          data: arrCopy.map((itm, idx) => {
+            return {
+              ...itm,
+              rank: itm.id === 0 ? mid + 1 : idx,
+              notElement: !(idx - 1 >= low && idx - 1 <= high) && idx != 0,
+              found: false,
+              id: itm.id,
+            };
+          }),
+        };
+        this.data.push(iteration);
+      }
     }
-
-    const final = {
-      data: arrCopy.map((itm, idx) => {
-        return {
-          rank: idx,
-          value: itm.value,
-          id: itm.id,
-          sorted: true,
-          compare: false,
-        };
-      }),
-    };
-
-    this.data.push(final);
     return this.data;
-  }
-
-  private swap(arr: TUniqueArr[], lft: number, rht: number) {
-    const tmp = arr[lft];
-    arr[lft] = arr[rht];
-    arr[rht] = tmp;
-  }
-
-  private populate(
-    arrCopy: TUniqueArr[],
-    prevData: TPrev[],
-    j: number,
-    i: number,
-  ) {
-    const tempResult = {
-      data: arrCopy.map((itm, idx) => {
-        return {
-          rank: idx,
-          value: itm.value,
-          id: itm.id,
-          sorted: prevData[idx].sorted,
-          compare:
-            ((idx === j || idx === j + 1) && j < arrCopy.length - 1 - i) ||
-            false,
-        };
-      }),
-    };
-
-    return tempResult;
   }
 }
 
-export default BubbleService;
+export default BinearyService;

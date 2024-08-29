@@ -12,11 +12,17 @@ function App() {
       <Route path={"/"} component={HomePage} />
       <Route path={"/algorithm"} component={AlgorithmPage} />
       <Route path={"/algorithm/sorting"}>
-        <Route path={"/"} component={() => <Navigate href={"/algorithm"} />} />
+        <Route
+          path={"/"}
+          component={() => <Navigate href={"/algorithm#sorting"} />}
+        />
         <Route path={"/:id"} component={SortingVisualizer} />
       </Route>
       <Route path={"/algorithm/searching"}>
-        <Route path={"/"} component={() => <Navigate href={"/algorithm"} />} />
+        <Route
+          path={"/"}
+          component={() => <Navigate href={"/algorithm#searching"} />}
+        />
         <Route path={"/:id"} component={SearchingVisualizer} />
       </Route>
       <Route path={"/*all"} component={NotFoundPage} />

@@ -1,4 +1,5 @@
 import { IVisualizer } from "../../types";
+import BinearyService from "../searching/bineary.service";
 import LinearService from "../searching/linear.service";
 import BubbleService from "./bubble.service";
 import InsertionService from "./insertion.service";
@@ -22,6 +23,9 @@ export const visualizerFactory = (value: string): IVisualizer => {
       break;
     case "linear":
       service = new LinearService();
+      break;
+    case "bineary":
+      service = new BinearyService();
       break;
     default:
       service = new SelectionService();

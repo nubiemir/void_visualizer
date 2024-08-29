@@ -67,12 +67,14 @@ const Menu = () => {
         <h1 class="text-[32px] font-bold">Algorithms</h1>
       </div>
       <MenuList
+        id="sorting"
         title={sort.title}
         introTitle={sort.introTitle}
         introDescription={sort.introDescription}
         list={sort.list}
       />
       <MenuList
+        id="searching"
         title={search.title}
         introTitle={search.introTitle}
         introDescription={search.introDescription}
