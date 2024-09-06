@@ -48,13 +48,13 @@ const Menu = () => {
         image: LinkImage,
         title: "Linear Search",
         subtitle: "This is a linear search",
-        visualizeLink: `/searching/linear`,
+        visualizeLink: `${pathname}/searching/linear`,
       },
       {
         image: LinkImage,
         title: "Bineary Search",
         subtitle: "This is a bineary search",
-        visualizeLink: `/searching/bineary`,
+        visualizeLink: `${pathname}/searching/bineary`,
       },
     ],
   };
