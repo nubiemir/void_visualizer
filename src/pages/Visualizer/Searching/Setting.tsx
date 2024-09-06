@@ -26,6 +26,14 @@ const SearchingSetting = () => {
       },
     },
     advanced: {
+      min: {
+        value: "",
+        error: false,
+      },
+      max: {
+        value: "",
+        error: false,
+      },
       size: {
         value: "",
         error: false,
@@ -65,7 +73,7 @@ const SearchingSetting = () => {
       currentTarget: HTMLInputElement;
       target: HTMLInputElement;
     },
-    key: "size" | "needle",
+    key: "size" | "needle" | "max" | "min",
   ) => {
     const value = event.target.value;
     setStore("advanced", key, "value", value);
@@ -102,17 +110,27 @@ const SearchingSetting = () => {
       }),
     );
     const size = +store.advanced.size.value;
+    const min = +store.advanced.min.value;
+    const max = +store.advanced.max.value;
     const needle = +store.advanced.needle.value;
 
-    if (isNaN(size) || isNaN(needle)) {
+    if (isNaN(size) || isNaN(needle) || isNaN(min) || isNaN(max)) {
       isNaN(size) && setStore("advanced", "size", "error", true);
       isNaN(needle) && setStore("advanced", "needle", "error", true);
+      isNaN(min) && setStore("advanced", "min", "error", true);
+      isNaN(max) && setStore("advanced", "max", "error", true);
+      return;
+    }
+
+    if (min >= max) {
+      setStore("advanced", "min", "error", true);
+      setStore("advanced", "max", "error", true);
       return;
     }
 
     const numArray = new Array();
     for (var i = 0; i < size; ++i) {
-      numArray.push(generateRandomNumber(1, size));
+      numArray.push(generateRandomNumber(min, max));
     }
     const arr = id === "bineary" ? numArray.sort((a, b) => a - b) : numArray;
     setData([needle].concat(arr));
@@ -178,6 +196,30 @@ const SearchingSetting = () => {
         </TabPanel>
         <TabPanel>
           <div class="py-2">
+            <div class="flex items-center justify-between mb-2">
+              <label for="min-value">Min Value:</label>
+              <div class="w-[30%]">
+                <Input
+                  id="min-value"
+                  value={store.advanced.min.value}
+                  error={store.advanced.min.error}
+                  type="text"
+                  handleChange={(ev) => handleAdvancedChange(ev, "min")}
+                />
+              </div>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="max-value">Max Value:</label>
+              <div class="w-[30%]">
+                <Input
+                  id="max-value"
+                  value={store.advanced.max.value}
+                  error={store.advanced.max.error}
+                  type="text"
+                  handleChange={(ev) => handleAdvancedChange(ev, "max")}
+                />
+              </div>
+            </div>
             <div class="flex items-center justify-between mb-2">
               <label for="arr-size">Array Size:</label>
               <div class="w-[30%]">
