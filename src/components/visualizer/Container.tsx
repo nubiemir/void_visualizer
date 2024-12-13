@@ -24,8 +24,8 @@ const Container: ParentComponent = (props) => {
       <div class="relative h-[100%] max-h-[100%]">
         <svg
           ref={(ele) => (svg = ele)}
-          class="w-[100%]  min-h-[400px]"
-          overflow="visible"
+          class="w-[100%] h-full"
+          overflow="hidden"
         >
           <g ref={(ele) => (g = ele)}></g>
         </svg>

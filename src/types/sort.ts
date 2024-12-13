@@ -47,8 +47,6 @@ export type TSearchResult = {
 };
 
 export interface IVisualizer {
-  zoom(container: Element | undefined, setTransform: (data: any) => void): void;
-
   initData(): TUniqueArr[];
 
   draw(
@@ -57,7 +55,6 @@ export interface IVisualizer {
     container: SVGElement,
     frameIdx: number,
     speed: number,
-    transform: any,
   ): void;
 
   animate(
@@ -68,7 +65,6 @@ export interface IVisualizer {
     handleAnimationFinished: () => void,
     frameIdx: number,
     speed: number,
-    transform: any,
   ): void;
   pauseAnimation(): void;
   createAnimationFrames(arr: TUniqueArr[]): any[];

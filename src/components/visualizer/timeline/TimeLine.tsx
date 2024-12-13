@@ -14,7 +14,6 @@ import "./timeline.css";
 
 const TimeLine: ParentComponent = (props) => {
   const {
-    handleExpandToggle,
     handleClickNext,
     handleClickPrevious,
     handleSliderClick,
@@ -140,13 +139,6 @@ const TimeLine: ParentComponent = (props) => {
               classList={{ "cursor-pointer": true, "setting-btn": true }}
             />
           </div>
-          <Media
-            image={!previewStore.expand ? ExpandIcon : CollapseIcon}
-            height={18}
-            width={18}
-            handleClick={handleExpandToggle}
-            classList={{ "cursor-pointer": true }}
-          />
         </div>
       </div>
     </div>

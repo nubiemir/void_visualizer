@@ -17,7 +17,6 @@ type TPreviewStore = {
   isPaused: boolean;
   isAnimating: boolean;
   isDone: boolean;
-  expand: boolean;
   speed: number;
   showTimeLine: boolean;
   showSetting: boolean;
@@ -26,13 +25,11 @@ type TPreviewStore = {
   group: SVGGElement | undefined;
   data: TUniqueArr[];
   frames: TResult[] | TSelectionResult[];
-  transform: any;
 };
 
 type TPreviewContext = {
   previewStore: TPreviewStore;
   handleStartAnimation: (event: MouseEvent) => void;
-  handleExpandToggle: () => void;
   handleSettingToggle: (event: MouseEvent) => void;
   handleSliderClick: (event: MouseEvent) => void;
   handleClickNext: (event: MouseEvent) => void;
@@ -58,7 +55,6 @@ export const PreviewProvider: ParentComponent = (props) => {
     isPaused: true,
     isAnimating: false,
     isDone: false,
-    expand: false,
     showTimeLine: false,
     showSetting: false,
     container: undefined,
@@ -66,7 +62,6 @@ export const PreviewProvider: ParentComponent = (props) => {
     group: undefined,
     data: [],
     frames: [],
-    transform: undefined,
   });
 
   let timer: number | null;
@@ -92,14 +87,9 @@ export const PreviewProvider: ParentComponent = (props) => {
           state.containerHeight = previewStore.container?.clientHeight || 0;
         }),
       );
-      service.zoom(previewStore.container, setTransform);
       drawObjects();
     }
   });
-
-  const setTransform = (data: any) => {
-    setPreviewStore("transform", data);
-  };
 
   const setContainerRefs = (container: SVGElement, group: SVGGElement) => {
     setPreviewStore(
@@ -254,7 +244,6 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleAnimationFinished,
         previewStore.frameIdx,
         previewStore.speed,
-        previewStore.transform,
       );
   };
 
@@ -296,13 +285,8 @@ export const PreviewProvider: ParentComponent = (props) => {
         previewStore.container,
         previewStore.frameIdx,
         previewStore.speed,
-        previewStore.transform,
       );
     }
-  };
-
-  const handleExpandToggle = () => {
-    setPreviewStore("expand", (prev) => !prev);
   };
 
   const handleSettingToggle = (event: MouseEvent) => {
@@ -341,7 +325,6 @@ export const PreviewProvider: ParentComponent = (props) => {
         handleAnimationFinished,
         previewStore.frameIdx,
         previewStore.speed,
-        previewStore.transform,
       );
   };
 
@@ -382,7 +365,6 @@ export const PreviewProvider: ParentComponent = (props) => {
         setContainerRefs,
         setSliderRef,
         handleStartAnimation,
-        handleExpandToggle,
         handleSettingToggle,
         handleSliderClick,
         handleClickNext,

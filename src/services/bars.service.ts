@@ -7,17 +7,21 @@ class BarsService {
     left: 20,
     right: 20,
   };
-  constructor() {}
+  constructor(private halfed: boolean) {
+  }
 
   scaleX(width: number, data: { rank: number; value: number }[]) {
     return d3
       .scaleBand<number>()
       .domain(d3.range(data.length))
       .range([this.margin.left, width - this.margin.right])
-      .padding(0.1);
+      .paddingInner(0.1)
+      .paddingOuter(1);
+
   }
 
   scaleY(height: number, data: { rank: number; value: number }[]) {
+    height = this.halfed ? height / 2 : height
     return d3
       .scaleLinear()
       .domain([0, d3.max(data, (d) => d.value) as number])

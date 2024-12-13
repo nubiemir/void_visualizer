@@ -6,7 +6,7 @@ class SelectionService extends BarsService implements IVisualizer {
   private data: TSelectionResult[];
   private timer: any;
   constructor() {
-    super();
+    super(false);
     this.data = [];
   }
 
@@ -24,21 +24,12 @@ class SelectionService extends BarsService implements IVisualizer {
     ];
   }
 
-  zoom(container: Element, setTransform: (data: any) => void): void {
-    const svg = d3.select(container);
-    const zoomBehavior = d3.zoom().on("zoom", (event) => {
-      setTransform(event.transform);
-    });
-    svg.call(zoomBehavior);
-  }
-
   draw(
     containerWidth: number,
     containerHeight: number,
     container: SVGElement,
     frameIdx: number = 0,
     speed: number = 1,
-    transform: any,
   ): void {
     if (this.getData.length === 0) return;
 
@@ -47,7 +38,7 @@ class SelectionService extends BarsService implements IVisualizer {
     const x = this.scaleX(containerWidth, this.getData[0].data);
     const y = this.scaleY(containerHeight, this.getData[0].data);
 
-    svg.select("g").attr("transform", transform);
+    const width = Math.min(60, x.bandwidth());
 
     bar
       .data(this.getData[frameIdx].data, (d: any) => d.id)
@@ -58,7 +49,7 @@ class SelectionService extends BarsService implements IVisualizer {
             .attr("x", (d) => x(d.rank) as number)
             .attr("y", (d) => y(d.value) as number)
             .attr("height", (d) => y(0) - y(d.value))
-            .attr("width", (_) => x.bandwidth())
+            .attr("width", (_) => width)
             .attr("fill", (d) =>
               d.sorted
                 ? "b4a746"
@@ -104,7 +95,6 @@ class SelectionService extends BarsService implements IVisualizer {
     handleAnimationFinished: () => void,
     frameIdx: number,
     speed: number,
-    transform: any,
   ) {
     let i = frameIdx;
     this.timer = setInterval(() => {
@@ -114,14 +104,7 @@ class SelectionService extends BarsService implements IVisualizer {
         return;
       }
 
-      this.draw(
-        containerWidth,
-        containerHeight,
-        container,
-        i,
-        speed,
-        transform,
-      );
+      this.draw(containerWidth, containerHeight, container, i, speed);
       i++;
       handleFrameChange(i);
     }, 800 / speed);
