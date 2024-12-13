@@ -6,7 +6,7 @@ class LinearService extends BarsService implements IVisualizer {
   private data: TSearchResult[];
   private timer: any;
   constructor() {
-    super();
+    super(false);
     this.data = [];
   }
 

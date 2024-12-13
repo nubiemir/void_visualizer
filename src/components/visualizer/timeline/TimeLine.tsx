@@ -1,7 +1,5 @@
 import { children, onMount, ParentComponent, Show } from "solid-js";
 import BackwardIcon from "../../../assets/backward-step-solid.svg";
-import CollapseIcon from "../../../assets/compress-solid.svg";
-import ExpandIcon from "../../../assets/expand-solid.svg";
 import ForwardIcon from "../../../assets/forward-step-solid.svg";
 import PauseIcon from "../../../assets/pause-solid.svg";
 import PlayIcon from "../../../assets/play-solid.svg";
